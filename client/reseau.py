@@ -49,3 +49,6 @@ class Joueur(pygame.sprite.Sprite, ConnectionListener):
         pygame.sprite.Sprite.__init__(self)
 
         self.image, self.rect = load_png("assets/joueur.png")
+
+    def Network_joueur(self, data):
+        self.rect.center = data['centre']

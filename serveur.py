@@ -3,18 +3,74 @@
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
+from client import config
 import pygame
-import sys
+import sys, os
+
+def load_png(name):
+    """Load image and return image object"""
+    fullname=os.path.join('.',name)
+    try:
+        image=pygame.image.load(fullname)
+        if image.get_alpha is None:
+            image=image.convert()
+        else:
+            image=image.convert_alpha()
+    except pygame.error, message:
+        print 'Cannot load image:', fullname
+        raise SystemExit, message
+
+    return image,image.get_rect()
+
+
+class Joueur(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_png("assets/joueur.png")
+        self.rect.x = x
+        self.rect.y = y
+
+        self.speed = [0, 0]
+
+    def up(self):
+        self.speed[1] = -config.PLAYER_SPEED
+
+    def down(self):
+        self.speed[1] = config.PLAYER_SPEED
+
+    def left(self):
+        self.speed[0] = -config.PLAYER_SPEED
+
+    def right(self):
+        self.speed[0] = config.PLAYER_SPEED
+        
+    def update(self):
+        self.rect = self.rect.move(self.speed)
+        self.speed = [0, 0]
+        
 
 class ClientChannel(Channel):
     def __init__(self, *args, **kwargs):
         Channel.__init__(self, *args, **kwargs)
+        self.joueur = Joueur(10, 10)
+        self.numero = 0
 
     def Close(self):
         self._server.del_client(self)
+
+    def update(self):
+        self.joueur.update()
         
     def Network_keys(self, data):
-        print "Received keys"
+        touches = data["keys"];
+        if touches[pygame.K_UP]:
+            self.joueur.up()
+        if touches[pygame.K_DOWN]:
+            self.joueur.down()
+        if touches[pygame.K_LEFT]:
+            self.joueur.left()
+        if touches[pygame.K_RIGHT]:
+            self.joueur.right()
 
 
 class MyServer(Server):
@@ -34,6 +90,7 @@ class MyServer(Server):
 
     def Connected(self, channel, addr):
         print "Connexion de %s:%d" % (addr[0], addr[1])
+        channel.numero = len(self.clients)
         self.clients.append(channel)
 
     def del_client(self, channel):
@@ -44,6 +101,10 @@ class MyServer(Server):
         while True:
             self.clock.tick(60)
             self.Pump()
+
+            for c in self.clients:
+                c.update()
+                c.Send({"action": "joueur", "centre": c.joueur.rect.center})
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

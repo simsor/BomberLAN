@@ -31,7 +31,11 @@ def main_function():
                 if event.type == pygame.QUIT:
                     enCours = False
 
+            touches = pygame.key.get_pressed()
+            client.Send({"action": "keys", "keys": touches})
+
             client.Loop()
+            joueur.Pump()
             
             screen.fill((255, 255, 255))
             screen.blit(joueur.image, joueur.rect)
