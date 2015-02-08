@@ -3,7 +3,7 @@
 import pygame
 import config
 import sys
-from reseau import BomberlanClient, Joueur
+from reseau import BomberlanClient, Joueur, GroupeMurs
 
 def main_function():
 
@@ -22,6 +22,8 @@ def main_function():
     clock = pygame.time.Clock()
 
     joueur = Joueur(10, 10)
+    murs = GroupeMurs()
+    caisses = GroupeCaisses()
 
     while enCours:
         clock.tick(60)
@@ -36,9 +38,13 @@ def main_function():
 
             client.Loop()
             joueur.Pump()
+            murs.Pump()
+            caisses.Pump()
             
             screen.fill((255, 255, 255))
             screen.blit(joueur.image, joueur.rect)
+            murs.draw(screen)
+            caisses.draw(screen)
             pygame.display.flip()
 
         else:

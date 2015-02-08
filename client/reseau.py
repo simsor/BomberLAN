@@ -25,10 +25,10 @@ def load_png(name):
 class BomberlanClient(ConnectionListener):
     def __init__(self, ip, port):
         self.running = False
+        self.numero = 0 # Le numéro du joueur
         self.Connect((ip, port))
 
     def Network_connected(self, data):
-        self.running = True
         print "Connecté au serveur !"
 
     def Network_error(self, data):
@@ -39,19 +39,25 @@ class BomberlanClient(ConnectionListener):
         print 'Server disconnected'
         sys.exit()
 
+    def Network_numero(self, data):
+        self.numero = data["numero"]
+        print "Je suis le numéro %d" % (self.numero)
+        self.running = True # On ne lance le jeu que quand on a un numéro
+
     def Loop(self):
         connection.Pump()
         self.Pump()
 
 
 class Joueur(pygame.sprite.Sprite, ConnectionListener):
+    """ Classe "coquille vide" représentant un joueur """
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
 
         self.bas = load_png("assets/joueur_bas.png")[0]
         self.haut = load_png("assets/joueur_haut.png")[0]
         self.droite = load_png("assets/joueur_droite.png")[0]
-        self.gauche = pygame.transform.flip(self.droite, False, True)
+        self.gauche = pygame.transform.flip(self.droite, True, False)
 
         self.image, self.rect = self.bas, self.bas.get_rect()
 
@@ -65,3 +71,42 @@ class Joueur(pygame.sprite.Sprite, ConnectionListener):
             self.image = self.gauche
         else:
             self.image = self.droite
+
+class Mur(pygame.sprite.Sprite):
+    """ Représente un mur indestructible """
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_png("assets/mur.png")
+
+        self.rect.center = (x, y)
+
+
+class Caisse(pygame.sprite.Sprite):
+    """ Représente une caisse destructible """
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_png("assets/caisse.png")
+
+        self.rect.x = x
+        self.rect.y = y
+
+class GroupeMurs(pygame.sprite.Group, ConnectionListener):
+    """ Représente un groupe de murs qui écoute sur le réseau """
+    def __init__(self):
+        pygame.sprite.Group.__init__(self)
+
+    def Network_murs(self, data):
+        self.empty()
+        for mur in data["murs"]:
+            self.add(Mur(mur[0], mur[1]))
+
+
+class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
+    """ Représente un groupe de caisses qui écoute sur le réseau """
+    def __init__(self):
+        pygame.sprite.Group.__init__(self)
+
+    def Network_caisses(self, data):
+        self.empty()
+        for caisse in data["caisses"]:
+            self.add(Caisse(caisse[0], Caisse[1]))
