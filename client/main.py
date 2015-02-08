@@ -3,7 +3,7 @@
 import pygame
 import config
 import sys
-from reseau import BomberlanClient, Joueur, GroupeMurs
+from reseau import BomberlanClient, Joueur, GroupeMurs, GroupeCaisses
 
 def main_function():
 
@@ -36,10 +36,10 @@ def main_function():
             touches = pygame.key.get_pressed()
             client.Send({"action": "keys", "keys": touches})
 
-            client.Loop()
             joueur.Pump()
             murs.Pump()
             caisses.Pump()
+            client.Loop()
             
             screen.fill((255, 255, 255))
             screen.blit(joueur.image, joueur.rect)

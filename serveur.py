@@ -74,6 +74,9 @@ class Joueur(pygame.sprite.Sprite):
         collisions_caisses = pygame.sprite.spritecollide(self, serveur.caisses, False)
         if collisions_murs or collisions_caisses:
             self.rect.center = ancienCentre
+            # On arrondit la position pour qu'il soit aligné
+            self.rect.x = 32 * round(self.rect.midtop[0] / 32)
+            self.rect.y = 32 * round(self.rect.midright[1] / 32)
         
         self.speed = [0, 0]
         
@@ -84,7 +87,7 @@ class Mur(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png("assets/mur.png")
 
-        self.rect.center = (x, y)
+        self.rect.topleft = (x, y)
 
 
 class Caisse(pygame.sprite.Sprite):
@@ -93,13 +96,12 @@ class Caisse(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png("assets/caisse.png")
 
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.topleft = (x, y)
         
 class ClientChannel(Channel):
     def __init__(self, *args, **kwargs):
         Channel.__init__(self, *args, **kwargs)
-        self.joueur = Joueur(10, 10)
+        self.joueur = Joueur(32, 32)
         self.numero = 0
 
     def Close(self):
@@ -137,12 +139,42 @@ class MyServer(Server):
 
         print "Serveur en écoute sur le port %d" % (port)
 
+        # On crée une bordure de murs
+        for i in range(0, config.ARENA_WIDTH):
+            self.murs.add(Mur(i * 32, 0))
+            self.murs.add(Mur(i * 32, config.ARENA_HEIGHT*32 - 32))
+
+        for i in range(1, config.ARENA_HEIGHT):
+            self.murs.add(Mur(0, i * 32))
+            self.murs.add(Mur(config.ARENA_WIDTH*32 - 32, i*32))
+
+        # On crée la grille
+        for i in range(1, config.ARENA_WIDTH-2):
+            for j in range(1, config.ARENA_HEIGHT-2):
+                if i % 2 == 0 and j % 2 == 0:
+                    self.murs.add(Mur(i*32, j*32))
+
+
+        # On crée les listes de centres de murs et de caisses
+        self.centres_murs = []
+        for mur in self.murs:
+            self.centres_murs.append(mur.rect.center)
+            
+        self.centres_caisses = []
+        for caisse in self.caisses:
+           self.centres_caisses.append(caisse.rect.center)
+
         self.main_loop()
 
     def Connected(self, channel, addr):
         print "Connexion de %s:%d" % (addr[0], addr[1])
         channel.numero = len(self.clients)
         channel.Send({"action": "numero", "numero": channel.numero})
+
+        # On envoie les murs et les caisses
+        channel.Send({"action": "murs", "murs": self.centres_murs})
+        channel.Send({"action": "caisses", "caisses": self.centres_caisses})
+        
         self.clients.append(channel)
 
     def del_client(self, channel):
@@ -154,22 +186,8 @@ class MyServer(Server):
             self.clock.tick(60)
             self.Pump()
 
-            self.murs.update()
-            self.caisses.update()
-
-            # On récupère les murs et les caisses pour les envoyer
-            centres_murs = []
-            for mur in self.murs:
-                centres_murs.append(mur.rect.center)
-
-            centres_caisses = []
-            for caisse in self.caisses:
-                centes_caisses.append(caisse.rect.center)
-
             for c in self.clients:
                 c.update()
-                c.Send({"action": "murs", "murs": centres_murs})
-                c.Send({"action": "caisses", "caisses": centres_caisses})
                 
 
 if __name__ == "__main__":

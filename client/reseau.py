@@ -87,8 +87,7 @@ class Caisse(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png("assets/caisse.png")
 
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.center = (x, y)
 
 class GroupeMurs(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de murs qui écoute sur le réseau """
