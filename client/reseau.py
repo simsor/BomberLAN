@@ -48,7 +48,20 @@ class Joueur(pygame.sprite.Sprite, ConnectionListener):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image, self.rect = load_png("assets/joueur.png")
+        self.bas = load_png("assets/joueur_bas.png")[0]
+        self.haut = load_png("assets/joueur_haut.png")[0]
+        self.droite = load_png("assets/joueur_droite.png")[0]
+        self.gauche = pygame.transform.flip(self.droite, False, True)
+
+        self.image, self.rect = self.bas, self.bas.get_rect()
 
     def Network_joueur(self, data):
         self.rect.center = data['centre']
+        if data["direction"] == "bas":
+            self.image = self.bas
+        elif data["direction"] == "haut":
+            self.image = self.haut
+        elif data["direction"] == "gauche":
+            self.image = self.gauche
+        else:
+            self.image = self.droite
