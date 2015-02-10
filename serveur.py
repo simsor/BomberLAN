@@ -7,20 +7,21 @@ from client import config
 import pygame
 import sys, os
 
+
 def load_png(name):
     """Load image and return image object"""
-    fullname=os.path.join('.',name)
+    fullname = os.path.join('.', name)
     try:
-        image=pygame.image.load(fullname)
+        image = pygame.image.load(fullname)
         if image.get_alpha is None:
-            image=image.convert()
+            image = image.convert()
         else:
-            image=image.convert_alpha()
+            image = image.convert_alpha()
     except pygame.error, message:
         print 'Cannot load image:', fullname
         raise SystemExit, message
 
-    return image,image.get_rect()
+    return image, image.get_rect()
 
 
 class Joueur(pygame.sprite.Sprite):
@@ -32,7 +33,7 @@ class Joueur(pygame.sprite.Sprite):
         self.droite = load_png("assets/joueur_droite.png")[0]
         self.gauche = pygame.transform.flip(self.droite, True, False)
         self.direction = "bas"
-        
+
         self.image, self.rect = self.bas, self.bas.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -66,7 +67,7 @@ class Joueur(pygame.sprite.Sprite):
         self.image, self.rect = self.droite, self.droite.get_rect()
         self.rect.center = centre
         self.direction = "droite"
-        
+
     def update(self, serveur):
         ancienCentre = self.rect.center
         self.rect = self.rect.move(self.speed)
@@ -77,12 +78,13 @@ class Joueur(pygame.sprite.Sprite):
             # On arrondit la position pour qu'il soit aligné
             self.rect.x = 32 * round(self.rect.midtop[0] / 32)
             self.rect.y = 32 * round(self.rect.midright[1] / 32)
-        
+
         self.speed = [0, 0]
-        
+
 
 class Mur(pygame.sprite.Sprite):
     """ Représente un mur indestructible """
+
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png("assets/mur.png")
@@ -92,12 +94,14 @@ class Mur(pygame.sprite.Sprite):
 
 class Caisse(pygame.sprite.Sprite):
     """ Représente une caisse destructible """
+
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png("assets/caisse.png")
 
         self.rect.topleft = (x, y)
-        
+
+
 class ClientChannel(Channel):
     def __init__(self, *args, **kwargs):
         Channel.__init__(self, *args, **kwargs)
@@ -109,8 +113,10 @@ class ClientChannel(Channel):
 
     def update(self):
         self.joueur.update(self._server)
-        self.Send({"action": "joueur", "centre": self.joueur.rect.center, "direction": self.joueur.direction})
-        
+        for client in self._server.clients:
+            self.Send({"action": "joueur_position", "numero": client.numero, "centre": client.joueur.rect.center,
+                       "direction": client.joueur.direction})
+
     def Network_keys(self, data):
         touches = data["keys"];
         if touches[pygame.K_UP]:
@@ -125,7 +131,7 @@ class ClientChannel(Channel):
 
 class MyServer(Server):
     channelClass = ClientChannel
-    
+
     def __init__(self, *args, **kwargs):
         Server.__init__(self, *args, **kwargs)
         pygame.init()
@@ -142,27 +148,27 @@ class MyServer(Server):
         # On crée une bordure de murs
         for i in range(0, config.ARENA_WIDTH):
             self.murs.add(Mur(i * 32, 0))
-            self.murs.add(Mur(i * 32, config.ARENA_HEIGHT*32 - 32))
+            self.murs.add(Mur(i * 32, config.ARENA_HEIGHT * 32 - 32))
 
         for i in range(1, config.ARENA_HEIGHT):
             self.murs.add(Mur(0, i * 32))
-            self.murs.add(Mur(config.ARENA_WIDTH*32 - 32, i*32))
+            self.murs.add(Mur(config.ARENA_WIDTH * 32 - 32, i * 32))
 
         # On crée la grille
-        for i in range(1, config.ARENA_WIDTH-2):
-            for j in range(1, config.ARENA_HEIGHT-2):
+        for i in range(1, config.ARENA_WIDTH - 2):
+            for j in range(1, config.ARENA_HEIGHT - 2):
                 if i % 2 == 0 and j % 2 == 0:
-                    self.murs.add(Mur(i*32, j*32))
+                    self.murs.add(Mur(i * 32, j * 32))
 
 
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = []
         for mur in self.murs:
             self.centres_murs.append(mur.rect.center)
-            
+
         self.centres_caisses = []
         for caisse in self.caisses:
-           self.centres_caisses.append(caisse.rect.center)
+            self.centres_caisses.append(caisse.rect.center)
 
         self.main_loop()
 
@@ -174,7 +180,12 @@ class MyServer(Server):
         # On envoie les murs et les caisses
         channel.Send({"action": "murs", "murs": self.centres_murs})
         channel.Send({"action": "caisses", "caisses": self.centres_caisses})
-        
+
+        # On envoie les autres joueurs connectés
+        for c in self.clients:
+            c.Send({"action": "joueur", "numero": channel.numero})
+            channel.Send({"action": "joueur", "numero": c.numero})
+
         self.clients.append(channel)
 
     def del_client(self, channel):
@@ -188,7 +199,7 @@ class MyServer(Server):
 
             for c in self.clients:
                 c.update()
-                
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -197,5 +208,5 @@ if __name__ == "__main__":
 
     ip = sys.argv[1]
     port = int(sys.argv[2])
-    
-    my_server = MyServer(localaddr = (ip, port))
+
+    my_server = MyServer(localaddr=(ip, port))
