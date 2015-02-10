@@ -22,6 +22,32 @@ def load_png(name):
 
     return image,image.get_rect()
 
+class Bombe(pygame.sprite.Sprite):
+    def  __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.sprite1 = load_png("assets/bombe1.png");
+        self.sprite2 = load_png("assets/bombe2.png");
+        self.sprite3 = load_png("assets/bombe3.png");
+
+        self.image, self.rect = self.sprite1, self.sprite1.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.time = config.TIME
+
+    def explose(self):
+        if self.image == self.sprite1:
+            self.image = self.sprite2
+        if self.image == self.sprite2:
+            self.image = self.sprite3
+
+
+
+    def update(self, serveur):
+        self.time -= 1
+        if self.time <= 0:
+            self.explose()
+
 
 class Joueur(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -66,6 +92,10 @@ class Joueur(pygame.sprite.Sprite):
         self.image, self.rect = self.droite, self.droite.get_rect()
         self.rect.center = centre
         self.direction = "droite"
+
+    def poseBombe(self, groupeBombe):
+        groupeBombe += Bombe(self.rect.x, self.rect.y)
+
         
     def update(self, serveur):
         ancienCentre = self.rect.center
@@ -121,6 +151,8 @@ class ClientChannel(Channel):
             self.joueur.left()
         if touches[pygame.K_RIGHT]:
             self.joueur.right()
+        if touches[pygame.K_SPACE]:
+            self.joueur.poseBombe()
 
 
 class MyServer(Server):
@@ -132,6 +164,7 @@ class MyServer(Server):
 
         self.screen = pygame.display.set_mode((100, 100))
         self.clients = []
+        self.groupeBombe = []
         self.clock = pygame.time.Clock()
 
         self.murs = pygame.sprite.Group()
