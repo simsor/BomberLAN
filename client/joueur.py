@@ -4,8 +4,8 @@ import pygame
 
 from PodSixNet.Connection import ConnectionListener
 
-from bomberLAN.functions import load_png
-from bomberLAN.config import ASSET_JOUEUR
+from functions import load_png
+from config import ASSET_JOUEUR
 
 
 class Joueur(pygame.sprite.Sprite):

@@ -6,8 +6,8 @@ import pygame
 from PodSixNet.Connection import connection, ConnectionListener
 
 from joueur import Joueur
-from bomberLAN.config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR
-from bomberLAN.functions import load_png
+from config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR
+from functions import load_png
 
 
 class BomberlanClient(ConnectionListener):

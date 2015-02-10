@@ -3,11 +3,11 @@
 import pygame
 import sys
 
-from bomberLAN import config
 from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes
 from joueur import GroupeJoueurs
-from bomberLAN.functions import load_png
-from bomberLAN.config import ASSET_SOL, ASSET_JOUEUR
+from functions import load_png
+from config import SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_HEIGHT, ARENA_WIDTH
+from config import ASSET_SOL, ASSET_JOUEUR
 
 
 def main_function():
@@ -20,7 +20,7 @@ def main_function():
 
     pygame.init()
 
-    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
     enCours = True
     clock = pygame.time.Clock()
 
@@ -31,8 +31,8 @@ def main_function():
     bombes = GroupeBombes()
     background = pygame.sprite.Group()
 
-    for i in range(0, config.ARENA_WIDTH):
-        for j in range(0, config.ARENA_HEIGHT):
+    for i in range(0, ARENA_WIDTH):
+        for j in range(0, ARENA_HEIGHT):
             background.add(Sol(i * 32, j * 32))
 
     while enCours:
