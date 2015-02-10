@@ -95,7 +95,7 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe):
-        groupeBombe += Bombe(self.rect.x, self.rect.y)
+        groupeBombe.append(Bombe(self.rect.x, self.rect.y))
 
 
     def update(self, serveur):
@@ -143,10 +143,12 @@ class ClientChannel(Channel):
 
     def update(self):
         self.joueur.update(self._server)
-        self.Send({"action": "joueur", "centre": self.joueur.rect.center, "direction": self.joueur.direction})
+        for client in self._server.clients:
+            self.Send({"action": "joueur_position", "numero": client.numero, "centre": client.joueur.rect.center,
+                       "direction": client.joueur.direction})
 
     def Network_keys(self, data):
-        touches = data["keys"];
+        touches = data["keys"]
         if touches[pygame.K_UP]:
             self.joueur.up()
         if touches[pygame.K_DOWN]:
@@ -156,7 +158,7 @@ class ClientChannel(Channel):
         if touches[pygame.K_RIGHT]:
             self.joueur.right()
         if touches[pygame.K_SPACE]:
-            self.joueur.poseBombe()
+            self.joueur.poseBombe(self._server.groupeBombe)
 
 
 class MyServer(Server):
@@ -170,6 +172,7 @@ class MyServer(Server):
         self.clients = []
         self.groupeBombe = []
         self.clock = pygame.time.Clock()
+        self.bombes = []
 
         self.murs = pygame.sprite.Group()
         self.caisses = pygame.sprite.Group()
@@ -212,6 +215,11 @@ class MyServer(Server):
         channel.Send({"action": "murs", "murs": self.centres_murs})
         channel.Send({"action": "caisses", "caisses": self.centres_caisses})
 
+        # On envoie les autres joueurs connectés
+        for c in self.clients:
+            c.Send({"action": "joueur", "numero": channel.numero})
+            channel.Send({"action": "joueur", "numero": c.numero})
+
         self.clients.append(channel)
 
     def del_client(self, channel):
@@ -222,9 +230,11 @@ class MyServer(Server):
         while True:
             self.clock.tick(60)
             self.Pump()
-
+            for bombe in self.groupeBombe:
+                self.bombes.append(bombe.rect.x, bombe.rect.y)
             for c in self.clients:
                 c.update()
+                c.Send({"action": "bombes", "bombes": self.bombes})
 
 
 if __name__ == "__main__":

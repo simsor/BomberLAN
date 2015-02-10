@@ -92,7 +92,6 @@ class GroupeMurs(pygame.sprite.Group, ConnectionListener):
 
 class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de caisses qui écoute sur le réseau """
-
     def __init__(self):
         pygame.sprite.Group.__init__(self)
 
