@@ -7,46 +7,21 @@ from client import config
 import pygame
 import sys, os
 
+
 def load_png(name):
     """Load image and return image object"""
-    fullname=os.path.join('.',name)
+    fullname = os.path.join('.', name)
     try:
-        image=pygame.image.load(fullname)
+        image = pygame.image.load(fullname)
         if image.get_alpha is None:
-            image=image.convert()
+            image = image.convert()
         else:
-            image=image.convert_alpha()
+            image = image.convert_alpha()
     except pygame.error, message:
         print 'Cannot load image:', fullname
         raise SystemExit, message
 
-    return image,image.get_rect()
-
-class Bombe(pygame.sprite.Sprite):
-    def  __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.sprite1 = load_png("assets/bombe1.png");
-        self.sprite2 = load_png("assets/bombe2.png");
-        self.sprite3 = load_png("assets/bombe3.png");
-
-        self.image, self.rect = self.sprite1, self.sprite1.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.time = config.TIME
-
-    def explose(self):
-        if self.image == self.sprite1:
-            self.image = self.sprite2
-        if self.image == self.sprite2:
-            self.image = self.sprite3
-
-
-
-    def update(self, serveur):
-        self.time -= 1
-        if self.time <= 0:
-            self.explose()
+    return image, image.get_rect()
 
 
 class Joueur(pygame.sprite.Sprite):
@@ -58,7 +33,7 @@ class Joueur(pygame.sprite.Sprite):
         self.droite = load_png("assets/joueur_droite.png")[0]
         self.gauche = pygame.transform.flip(self.droite, True, False)
         self.direction = "bas"
-        
+
         self.image, self.rect = self.bas, self.bas.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -93,10 +68,6 @@ class Joueur(pygame.sprite.Sprite):
         self.rect.center = centre
         self.direction = "droite"
 
-    def poseBombe(self, groupeBombe):
-        groupeBombe.append(Bombe(self.rect.x, self.rect.y))
-
-        
     def update(self, serveur):
         ancienCentre = self.rect.center
         self.rect = self.rect.move(self.speed)
@@ -107,12 +78,13 @@ class Joueur(pygame.sprite.Sprite):
             # On arrondit la position pour qu'il soit aligné
             self.rect.x = 32 * round(self.rect.midtop[0] / 32)
             self.rect.y = 32 * round(self.rect.midright[1] / 32)
-        
+
         self.speed = [0, 0]
-        
+
 
 class Mur(pygame.sprite.Sprite):
     """ Représente un mur indestructible """
+
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png("assets/mur.png")
@@ -122,12 +94,14 @@ class Mur(pygame.sprite.Sprite):
 
 class Caisse(pygame.sprite.Sprite):
     """ Représente une caisse destructible """
+
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png("assets/caisse.png")
 
         self.rect.topleft = (x, y)
-        
+
+
 class ClientChannel(Channel):
     def __init__(self, *args, **kwargs):
         Channel.__init__(self, *args, **kwargs)
@@ -142,7 +116,7 @@ class ClientChannel(Channel):
         for client in self._server.clients:
             self.Send({"action": "joueur_position", "numero": client.numero, "centre": client.joueur.rect.center,
                        "direction": client.joueur.direction})
-        
+
     def Network_keys(self, data):
         touches = data["keys"];
         if touches[pygame.K_UP]:
@@ -153,22 +127,18 @@ class ClientChannel(Channel):
             self.joueur.left()
         if touches[pygame.K_RIGHT]:
             self.joueur.right()
-        if touches[pygame.K_SPACE]:
-            self.joueur.poseBombe(self._server.groupeBombe)
 
 
 class MyServer(Server):
     channelClass = ClientChannel
-    
+
     def __init__(self, *args, **kwargs):
         Server.__init__(self, *args, **kwargs)
         pygame.init()
 
         self.screen = pygame.display.set_mode((100, 100))
         self.clients = []
-        self.groupeBombe = []
         self.clock = pygame.time.Clock()
-        self.bombes = []
 
         self.murs = pygame.sprite.Group()
         self.caisses = pygame.sprite.Group()
@@ -178,27 +148,27 @@ class MyServer(Server):
         # On crée une bordure de murs
         for i in range(0, config.ARENA_WIDTH):
             self.murs.add(Mur(i * 32, 0))
-            self.murs.add(Mur(i * 32, config.ARENA_HEIGHT*32 - 32))
+            self.murs.add(Mur(i * 32, config.ARENA_HEIGHT * 32 - 32))
 
         for i in range(1, config.ARENA_HEIGHT):
             self.murs.add(Mur(0, i * 32))
-            self.murs.add(Mur(config.ARENA_WIDTH*32 - 32, i*32))
+            self.murs.add(Mur(config.ARENA_WIDTH * 32 - 32, i * 32))
 
         # On crée la grille
-        for i in range(1, config.ARENA_WIDTH-2):
-            for j in range(1, config.ARENA_HEIGHT-2):
+        for i in range(1, config.ARENA_WIDTH - 2):
+            for j in range(1, config.ARENA_HEIGHT - 2):
                 if i % 2 == 0 and j % 2 == 0:
-                    self.murs.add(Mur(i*32, j*32))
+                    self.murs.add(Mur(i * 32, j * 32))
 
 
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = []
         for mur in self.murs:
             self.centres_murs.append(mur.rect.center)
-            
+
         self.centres_caisses = []
         for caisse in self.caisses:
-           self.centres_caisses.append(caisse.rect.center)
+            self.centres_caisses.append(caisse.rect.center)
 
         self.main_loop()
 
@@ -226,13 +196,10 @@ class MyServer(Server):
         while True:
             self.clock.tick(60)
             self.Pump()
-            for bombe in self.groupeBombe:
-                    self.bombes.append(bombe.rect.x, bombe.rect.y)
+
             for c in self.clients:
                 c.update()
-                c.Send({"action": "bombes", "bombes": self.bombes})
 
-                
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -241,5 +208,5 @@ if __name__ == "__main__":
 
     ip = sys.argv[1]
     port = int(sys.argv[2])
-    
-    my_server = MyServer(localaddr = (ip, port))
+
+    my_server = MyServer(localaddr=(ip, port))
