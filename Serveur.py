@@ -127,7 +127,7 @@ class Caisse(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/caisse.png")
+        self.image, self.rect = load_png("assets/caisse_2.png")
 
         self.rect.topleft = (x, y)
 
@@ -176,6 +176,8 @@ class MyServer(Server):
 
         self.murs = pygame.sprite.Group()
         self.caisses = pygame.sprite.Group()
+        self.caisses.add(Caisse(3 * 32, 1 * 32))
+        self.caisses.add(Caisse(10 * 32, 5 * 32))
 
         print "Serveur en écoute sur le port %d" % (port)
 

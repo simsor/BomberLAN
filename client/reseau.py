@@ -53,17 +53,7 @@ class Caisse(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/caisse.png")
-
-        self.rect.center = (x, y)
-
-
-class Background(pygame.sprite.Sprite):
-    """Représente un fond animé"""
-
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/bg_1.png")
+        self.image, self.rect = load_png("assets/caisse_2.png")
 
         self.rect.center = (x, y)
 
@@ -92,13 +82,14 @@ class GroupeMurs(pygame.sprite.Group, ConnectionListener):
 
 class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de caisses qui écoute sur le réseau """
+
     def __init__(self):
         pygame.sprite.Group.__init__(self)
 
     def Network_caisses(self, data):
         self.empty()
         for caisse in data["caisses"]:
-            self.add(Caisse(caisse[0], Caisse[1]))
+            self.add(Caisse(caisse[0], caisse[1]))
 
 
 class GroupeBombes(pygame.sprite.Group, ConnectionListener):
