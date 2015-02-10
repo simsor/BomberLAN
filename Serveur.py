@@ -3,14 +3,24 @@
 
 import pygame
 import sys
-import os
+
+from pprint import pprint
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
 
 from functions import load_png
 from config import ASSET_JOUEUR, ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE
-from config import ARENA_HEIGHT, ARENA_WIDTH, BOMB_DELAY, PLAYER_SPEED
+from config import ARENA_HEIGHT, ARENA_WIDTH, BOMB_DELAY, PLAYER_SPEED, BOMB_RANGE
+
+
+def bombeCollide(sprite1, sprite2):
+    tl = sprite2.rect.collidepoint(sprite1.topleft)
+    tr = sprite2.rect.collidepoint(sprite1.topright)
+    bl = sprite2.rect.collidepoint(sprite1.bottomleft)
+    br = sprite2.rect.collidepoint(sprite1.topright)
+
+    return (tl or tr or bl or br)
 
 
 class Bombe(pygame.sprite.Sprite):
@@ -24,18 +34,31 @@ class Bombe(pygame.sprite.Sprite):
         self.rect.y = y
         self.time = BOMB_DELAY
 
-    """
-    def explose(self):
-        if self.image == self.sprite1:
-            self.image = self.sprite2
-        if self.image == self.sprite2:
-            self.image = self.sprite3
-    """
+    def explose(self, murs, caisses):
+        """ Explosion de la bombe : gère l'explosion """
+        portee = {}
+        portee["left"] = self.chercher(BOMB_RANGE, self.rect, [-32, 0], murs, caisses)
+        portee["right"] = self.chercher(BOMB_RANGE, self.rect, [32, 0], murs, caisses)
+        portee["up"] = self.chercher(BOMB_RANGE, self.rect, [0, -32], murs, caisses)
+        portee["down"] = self.chercher(BOMB_RANGE, self.rect, [0, 32], murs, caisses)
+        return portee
+
+    def chercher(self, portee, rect, speed, murs, caisses):
+        if portee > 0:
+            rectangle = rect.move(speed)
+            if pygame.sprite.spritecollideany(rectangle, murs, collided=bombeCollide) or \
+                    pygame.sprite.spritecollideany(rectangle, caisses, collided=bombeCollide):
+                return 0
+            return 1 + self.chercher(portee - 1, rectangle, speed, murs, caisses)
+        else:
+            return 0
 
     def update(self, serveur):
+        """ Mise à jour de la bombe : réduit le timer, celle-ci explose lorsque timer == 0 """
         self.time -= 1
-        # if self.time <= 0:
-        # self.explose()
+        if self.time <= 0:
+            pprint(self.explose(serveur.murs, serveur.caisses))
+            self.kill()
 
 
 class Joueur(pygame.sprite.Sprite):
@@ -212,6 +235,9 @@ class MyServer(Server):
         while True:
             self.clock.tick(60)
             self.Pump()
+
+            # On update les bombes
+            self.bombes.update(self)
 
             # On récupère tous les centres des bombes
             centres_bombes = [(bombe.rect.x, bombe.rect.y) for bombe in self.bombes]
