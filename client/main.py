@@ -53,14 +53,16 @@ def main_function():
 
             screen.fill((255, 255, 255))
             background.draw(screen)
+
+            for j in joueurs:
+                xAbs, yAbs = j.rect.midbottom
+                shadow = Shadow((xAbs, yAbs - 8))
+                screen.blit(shadow.image, shadow.rect)
+
             murs.draw(screen)
             caisses.draw(screen)
             joueurs.draw(screen)
-            """
-            for j in joueurs:
-                shadow = Shadow(j.rect.center)
-                screen.blit(shadow.image, shadow.rect)
-            """
+
             bombes.draw(screen)
             pygame.display.flip()
 
