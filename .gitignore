@@ -56,3 +56,6 @@ target/
 # Emacs shit
 \#*\#
 *~
+
+# PyCharm
+.idea/
