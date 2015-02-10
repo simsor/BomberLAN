@@ -12,7 +12,7 @@ ARENA_HEIGHT = 17
 # Config de la bombe
 # Timer avant explosion en frame
 
-TIME = 120
+BOMB_DELAY = 120
 
 # Images / assets :
 # définition générale ici pour ne pas avoir à changer côté serveur et client à chaque fois

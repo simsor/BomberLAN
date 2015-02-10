@@ -10,18 +10,19 @@ from PodSixNet.Server import Server
 
 from functions import load_png
 from config import ASSET_JOUEUR, ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE
-from config import ARENA_HEIGHT, ARENA_WIDTH, TIME, PLAYER_SPEED
+from config import ARENA_HEIGHT, ARENA_WIDTH, BOMB_DELAY, PLAYER_SPEED
 
 
 class Bombe(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, joueur, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.sprite = load_png(ASSET_BOMBE)[0]
+        self.joueur = joueur
 
         self.image, self.rect = self.sprite, self.sprite.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.time = TIME
+        self.time = BOMB_DELAY
 
     """
     def explose(self):
@@ -30,7 +31,6 @@ class Bombe(pygame.sprite.Sprite):
         if self.image == self.sprite2:
             self.image = self.sprite3
     """
-
 
     def update(self, serveur):
         self.time -= 1
@@ -72,7 +72,10 @@ class Joueur(pygame.sprite.Sprite):
             if bombe.rect.x == bombx and bombe.rect.y == bomby:
                 return  # Il y a déjà une bombe ici, on annule
 
-        groupeBombe.add(Bombe(bombx, bomby))
+            if bombe.joueur == self:
+                return  # Il a déjà posé une bombe, en attente qu'elle explose
+
+        groupeBombe.add(Bombe(self, bombx, bomby))
 
     def update(self, serveur):
         ancienCentre = self.rect.center
@@ -171,7 +174,6 @@ class MyServer(Server):
                 if i % 2 == 0 and j % 2 == 0:
                     self.murs.add(Mur(i * 32, j * 32))
 
-
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = []
         for mur in self.murs:
@@ -204,12 +206,17 @@ class MyServer(Server):
         self.clients.remove(channel)
 
     def main_loop(self):
+        """
+        Boucle principale du serveur : gère l'envoie et la réception des données principalement
+        """
         while True:
             self.clock.tick(60)
             self.Pump()
-            centres_bombes = []
-            for bombe in self.bombes:
-                centres_bombes.append((bombe.rect.x, bombe.rect.y))
+
+            # On récupère tous les centres des bombes
+            centres_bombes = [(bombe.rect.x, bombe.rect.y) for bombe in self.bombes]
+
+            # On envoie toutes les données aux clients
             for c in self.clients:
                 c.update()
                 c.Send({"action": "bombes", "bombes": centres_bombes})

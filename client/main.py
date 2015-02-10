@@ -62,9 +62,9 @@ def main_function():
 
             murs.draw(screen)
             caisses.draw(screen)
+            bombes.draw(screen)
             joueurs.draw(screen)
 
-            bombes.draw(screen)
             pygame.display.flip()
 
         else:
