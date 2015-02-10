@@ -8,7 +8,6 @@ from joueur import Joueur
 
 from functions import load_png
 
-
 class BomberlanClient(ConnectionListener):
     def __init__(self, ip, port, groupe_joueurs):
         self.running = False
@@ -57,6 +56,17 @@ class Caisse(pygame.sprite.Sprite):
 
         self.rect.center = (x, y)
 
+<<<<<<< HEAD
+=======
+class Bombe(pygame.sprite.Sprite):
+    """ Représente une bombe déposée par un joueur """
+
+    def __init__(self,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_png("assets/bombe3.png")
+
+        self.rect.center = (x,y)
+>>>>>>> e75c0693d0262f2f144c03ea19092709f238d177
 
 class GroupeMurs(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de murs qui écoute sur le réseau """
@@ -69,14 +79,31 @@ class GroupeMurs(pygame.sprite.Group, ConnectionListener):
         for mur in data["murs"]:
             self.add(Mur(mur[0], mur[1]))
 
-
 class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de caisses qui écoute sur le réseau """
+<<<<<<< HEAD
 
     def __init__(self):
+=======
+    def __init__(self):s
+>>>>>>> e75c0693d0262f2f144c03ea19092709f238d177
         pygame.sprite.Group.__init__(self)
 
     def Network_caisses(self, data):
         self.empty()
         for caisse in data["caisses"]:
+<<<<<<< HEAD
             self.add(Caisse(caisse[0], Caisse[1]))
+=======
+            self.add(Caisse(caisse[0], Caisse[1]))
+
+class GroupeBombes(pygame.sprite.Group, ConnectionListener):
+    """ Représente un groupe de de bombe qui écoute le réseau"""
+    def __init__(self):
+        pygame.sprite.Group.__init__(self)
+
+    def Network_bombes(self, data):
+        self.empty()
+        for bombe in data["bombes"]:
+            self.add(Bombe(bombe[0], Bombe[1]))
+>>>>>>> e75c0693d0262f2f144c03ea19092709f238d177
