@@ -54,44 +54,27 @@ class Joueur(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
 
-        self.bas = load_png("assets/joueur_bas.png")[0]
-        self.haut = load_png("assets/joueur_haut.png")[0]
-        self.droite = load_png("assets/joueur_droite.png")[0]
-        self.gauche = pygame.transform.flip(self.droite, True, False)
-        self.direction = "bas"
-
-        self.image, self.rect = self.bas, self.bas.get_rect()
+        self.image, self.rect = load_png("assets/joueur_bas.png")
         self.rect.x = x
         self.rect.y = y
+        self.direction = "bas"
 
         self.speed = [0, 0]
 
     def up(self):
         self.speed[1] = -config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.haut, self.haut.get_rect()
-        self.rect.center = centre
         self.direction = "haut"
 
     def down(self):
         self.speed[1] = config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.bas, self.bas.get_rect()
-        self.rect.center = centre
         self.direction = "bas"
 
     def left(self):
         self.speed[0] = -config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.gauche, self.gauche.get_rect()
-        self.rect.center = centre
         self.direction = "gauche"
 
     def right(self):
         self.speed[0] = config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.droite, self.droite.get_rect()
-        self.rect.center = centre
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe):
