@@ -118,7 +118,7 @@ class ClientChannel(Channel):
                        "direction": client.joueur.direction})
 
     def Network_keys(self, data):
-        touches = data["keys"];
+        touches = data["keys"]
         if touches[pygame.K_UP]:
             self.joueur.up()
         if touches[pygame.K_DOWN]:
