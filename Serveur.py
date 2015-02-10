@@ -78,8 +78,13 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe):
-        groupeBombe.add(Bombe(self.rect.x, self.rect.y))
-
+        bombx = (32 * round(self.rect.centerx / 32)) + 16
+        bomby = (32 * round(self.rect.centery / 32)) + 16
+        for bombe in groupeBombe:
+            if bombe.rect.x == bombx and bombe.rect.y == bomby:
+                return # Il y a déjà une bombe ici, on annule
+        
+        groupeBombe.add(Bombe(bombx, bomby))
 
     def update(self, serveur):
         ancienCentre = self.rect.center
