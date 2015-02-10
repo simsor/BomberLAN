@@ -109,7 +109,7 @@ class GroupeMurs(pygame.sprite.Group, ConnectionListener):
 
 class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de caisses qui écoute sur le réseau """
-    def __init__(self):
+    def __init__(self):s
         pygame.sprite.Group.__init__(self)
 
     def Network_caisses(self, data):
@@ -117,7 +117,7 @@ class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
         for caisse in data["caisses"]:
             self.add(Caisse(caisse[0], Caisse[1]))
 
-class GroupeBomb(pygame.sprite.Group, ConnectionListener):
+class GroupeBombes(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de de bombe qui écoute le réseau"""
     def __init__(self):
         pygame.sprite.Group.__init__(self)

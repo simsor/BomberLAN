@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eb25e3c9-ecff-4188-aebb-036383e6d0c1" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/reseau.py" afterPath="$PROJECT_DIR$/client/reseau.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="BomberLAN.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -36,14 +38,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="reseau.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="reseau.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/reseau.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.07746479" vertical-offset="1285" max-vertical-offset="1995">
-              <caret line="82" column="22" selection-start-line="82" selection-start-column="22" selection-end-line="82" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1285" max-vertical-offset="1995">
+              <caret line="101" column="23" selection-start-line="101" selection-start-column="23" selection-end-line="101" selection-end-column="23" />
               <folding>
                 <element signature="e#17#80#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.7810219" vertical-offset="260" max-vertical-offset="990">
+              <caret line="53" column="7" selection-start-line="53" selection-start-column="7" selection-end-line="53" selection-end-column="7" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -69,6 +81,7 @@
         <option value="$PROJECT_DIR$/Client.py" />
         <option value="$PROJECT_DIR$/client/config.py" />
         <option value="$PROJECT_DIR$/client/reseau.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -402,11 +415,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/reseau.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.07746479" vertical-offset="1285" max-vertical-offset="1995">
-          <caret line="82" column="22" selection-start-line="82" selection-start-column="22" selection-end-line="82" selection-end-column="22" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1285" max-vertical-offset="1995">
+          <caret line="101" column="23" selection-start-line="101" selection-start-column="23" selection-end-line="101" selection-end-column="23" />
           <folding>
             <element signature="e#17#80#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7810219" vertical-offset="260" max-vertical-offset="990">
+          <caret line="53" column="7" selection-start-line="53" selection-start-column="7" selection-end-line="53" selection-end-column="7" />
+          <folding />
         </state>
       </provider>
     </entry>
