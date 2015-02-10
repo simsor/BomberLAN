@@ -56,8 +56,6 @@ class Caisse(pygame.sprite.Sprite):
 
         self.rect.center = (x, y)
 
-<<<<<<< HEAD
-=======
 class Bombe(pygame.sprite.Sprite):
     """ Représente une bombe déposée par un joueur """
 
@@ -66,7 +64,6 @@ class Bombe(pygame.sprite.Sprite):
         self.image, self.rect = load_png("assets/bombe3.png")
 
         self.rect.center = (x,y)
->>>>>>> e75c0693d0262f2f144c03ea19092709f238d177
 
 class GroupeMurs(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de murs qui écoute sur le réseau """
@@ -81,20 +78,13 @@ class GroupeMurs(pygame.sprite.Group, ConnectionListener):
 
 class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de caisses qui écoute sur le réseau """
-<<<<<<< HEAD
 
     def __init__(self):
-=======
-    def __init__(self):s
->>>>>>> e75c0693d0262f2f144c03ea19092709f238d177
         pygame.sprite.Group.__init__(self)
 
     def Network_caisses(self, data):
         self.empty()
         for caisse in data["caisses"]:
-<<<<<<< HEAD
-            self.add(Caisse(caisse[0], Caisse[1]))
-=======
             self.add(Caisse(caisse[0], Caisse[1]))
 
 class GroupeBombes(pygame.sprite.Group, ConnectionListener):
@@ -106,4 +96,3 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
         self.empty()
         for bombe in data["bombes"]:
             self.add(Bombe(bombe[0], Bombe[1]))
->>>>>>> e75c0693d0262f2f144c03ea19092709f238d177
