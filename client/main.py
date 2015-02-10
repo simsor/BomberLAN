@@ -4,7 +4,7 @@ import pygame
 import sys
 
 import config
-from reseau import BomberlanClient, GroupeMurs, GroupeCaisses
+from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes
 from joueur import GroupeJoueurs
 from functions import load_png
 
@@ -19,7 +19,7 @@ def main_function():
 
     pygame.init()
 
-    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT), pygame.RESIZABLE)
     enCours = True
     clock = pygame.time.Clock()
 
@@ -27,6 +27,7 @@ def main_function():
     client = BomberlanClient(ip, port, joueurs)
     murs = GroupeMurs()
     caisses = GroupeCaisses()
+    bombes = GroupeBombes()
     background = pygame.sprite.Group()
 
     for i in range(0, config.ARENA_WIDTH):
@@ -47,6 +48,7 @@ def main_function():
             joueurs.Pump()
             murs.Pump()
             caisses.Pump()
+            bombes.Pump()
             client.Loop()
 
             screen.fill((255, 255, 255))
@@ -59,6 +61,7 @@ def main_function():
                 shadow = Shadow(j.rect.center)
                 screen.blit(shadow.image, shadow.rect)
             """
+            bombes.draw(screen)
             pygame.display.flip()
 
         else:
