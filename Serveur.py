@@ -7,9 +7,10 @@ import os
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
-from bomberLAN import config
+
 from functions import load_png
 from config import ASSET_JOUEUR, ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE
+from config import ARENA_HEIGHT, ARENA_WIDTH, TIME, PLAYER_SPEED
 
 
 class Bombe(pygame.sprite.Sprite):
@@ -20,7 +21,7 @@ class Bombe(pygame.sprite.Sprite):
         self.image, self.rect = self.sprite, self.sprite.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.time = config.TIME
+        self.time = TIME
 
     """
     def explose(self):
@@ -41,49 +42,37 @@ class Joueur(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
 
-        self.bas = load_png(ASSET_JOUEUR['BAS'])[0]
-        self.haut = load_png(ASSET_JOUEUR['HAUT'])[0]
-        self.droite = load_png(ASSET_JOUEUR['DROITE'])[0]
-        self.gauche = pygame.transform.flip(self.droite, True, False)
-        self.direction = "bas"
-
-        self.image, self.rect = self.bas, self.bas.get_rect()
+        self.image, self.rect = load_png(ASSET_JOUEUR['BAS'])
         self.rect.x = x
         self.rect.y = y
+        self.direction = "bas"
 
         self.speed = [0, 0]
 
     def up(self):
-        self.speed[1] = -config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.haut, self.haut.get_rect()
-        self.rect.center = centre
+        self.speed[1] = -PLAYER_SPEED
         self.direction = "haut"
 
     def down(self):
-        self.speed[1] = config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.bas, self.bas.get_rect()
-        self.rect.center = centre
+        self.speed[1] = PLAYER_SPEED
         self.direction = "bas"
 
     def left(self):
-        self.speed[0] = -config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.gauche, self.gauche.get_rect()
-        self.rect.center = centre
+        self.speed[0] = -PLAYER_SPEED
         self.direction = "gauche"
 
     def right(self):
-        self.speed[0] = config.PLAYER_SPEED
-        centre = self.rect.center
-        self.image, self.rect = self.droite, self.droite.get_rect()
-        self.rect.center = centre
+        self.speed[0] = PLAYER_SPEED
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe):
-        groupeBombe.add(Bombe(self.rect.x, self.rect.y))
+        bombx = (32 * round(self.rect.centerx / 32)) + 16
+        bomby = (32 * round(self.rect.centery / 32)) + 16
+        for bombe in groupeBombe:
+            if bombe.rect.x == bombx and bombe.rect.y == bomby:
+                return  # Il y a déjà une bombe ici, on annule
 
+        groupeBombe.add(Bombe(bombx, bomby))
 
     def update(self, serveur):
         ancienCentre = self.rect.center
@@ -168,17 +157,17 @@ class MyServer(Server):
         print "Serveur en écoute sur le port %d" % (port)
 
         # On crée une bordure de murs
-        for i in range(0, config.ARENA_WIDTH):
+        for i in range(0, ARENA_WIDTH):
             self.murs.add(Mur(i * 32, 0))
-            self.murs.add(Mur(i * 32, config.ARENA_HEIGHT * 32 - 32))
+            self.murs.add(Mur(i * 32, ARENA_HEIGHT * 32 - 32))
 
-        for i in range(1, config.ARENA_HEIGHT):
+        for i in range(1, ARENA_HEIGHT):
             self.murs.add(Mur(0, i * 32))
-            self.murs.add(Mur(config.ARENA_WIDTH * 32 - 32, i * 32))
+            self.murs.add(Mur(ARENA_WIDTH * 32 - 32, i * 32))
 
         # On crée la grille
-        for i in range(1, config.ARENA_WIDTH - 2):
-            for j in range(1, config.ARENA_HEIGHT - 2):
+        for i in range(1, ARENA_WIDTH - 2):
+            for j in range(1, ARENA_HEIGHT - 2):
                 if i % 2 == 0 and j % 2 == 0:
                     self.murs.add(Mur(i * 32, j * 32))
 
