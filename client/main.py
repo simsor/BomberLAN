@@ -5,9 +5,8 @@ import sys
 
 from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes
 from joueur import GroupeJoueurs
-from functions import load_png
+from map import Sol, Shadow
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_HEIGHT, ARENA_WIDTH
-from config import ASSET_SOL, ASSET_JOUEUR
 
 
 def main_function():
@@ -69,23 +68,3 @@ def main_function():
 
         else:
             client.Loop()
-
-
-class Sol(pygame.sprite.Sprite):
-    """Représente un sol animé"""
-
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png(ASSET_SOL)
-
-        self.rect.center = (x, y)
-
-
-class Shadow(pygame.sprite.Sprite):
-    """Représente une ombre"""
-
-    def __init__(self, center):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png(ASSET_JOUEUR['SHADOW'])
-
-        self.rect.center = center

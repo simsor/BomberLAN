@@ -40,13 +40,11 @@ class Bombe(pygame.sprite.Sprite):
     def chercher(self, portee, rect, speed, murs, caisses):
         if portee > 0:
             rectangle = rect.move(speed)
-            pprint(rectangle)
             if pygame.sprite.spritecollideany(rectangle, murs, collided=bombeCollide) or \
                     pygame.sprite.spritecollideany(rectangle, caisses, collided=bombeCollide):
                 return 0
-            return 1 + self.chercher(portee - 1, rectangle, speed, murs, caisses)
-        else:
-            return 0
+            return 1 + self.chercher(portee - 1, rectangle, speed, murs, caisses)  # Pas de collision
+        return 0  # Portée maximale atteinte
 
     def update(self, serveur):
         """ Mise à jour de la bombe : réduit le timer, celle-ci explose lorsque timer == 0 """
