@@ -28,9 +28,9 @@ class Bombe(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
 
-        self.sprite1 = load_png("assets/bombe1.png");
-        self.sprite2 = load_png("assets/bombe2.png");
-        self.sprite3 = load_png("assets/bombe3.png");
+        self.sprite1 = load_png("assets/bombe1.png")[0]
+        self.sprite2 = load_png("assets/bombe2.png")[0]
+        self.sprite3 = load_png("assets/bombe3.png")[0]
 
         self.image, self.rect = self.sprite1, self.sprite1.get_rect()
         self.rect.x = x
@@ -46,8 +46,8 @@ class Bombe(pygame.sprite.Sprite):
 
     def update(self, serveur):
         self.time -= 1
-        if self.time <= 0:
-            self.explose()
+        #if self.time <= 0:
+         #   self.explose()
 
 
 class Joueur(pygame.sprite.Sprite):
@@ -95,7 +95,7 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe):
-        groupeBombe.append(Bombe(self.rect.x, self.rect.y))
+        groupeBombe.add(Bombe(self.rect.x, self.rect.y))
 
 
     def update(self, serveur):
@@ -158,7 +158,7 @@ class ClientChannel(Channel):
         if touches[pygame.K_RIGHT]:
             self.joueur.right()
         if touches[pygame.K_SPACE]:
-            self.joueur.poseBombe(self._server.groupeBombe)
+            self.joueur.poseBombe(self._server.bombes)
 
 
 class MyServer(Server):
@@ -170,12 +170,11 @@ class MyServer(Server):
 
         self.screen = pygame.display.set_mode((100, 100))
         self.clients = []
-        self.groupeBombe = []
         self.clock = pygame.time.Clock()
-        self.bombes = []
 
         self.murs = pygame.sprite.Group()
         self.caisses = pygame.sprite.Group()
+        self.bombes = pygame.sprite.Group()
 
         print "Serveur en écoute sur le port %d" % (port)
 
@@ -230,11 +229,12 @@ class MyServer(Server):
         while True:
             self.clock.tick(60)
             self.Pump()
-            for bombe in self.groupeBombe:
-                self.bombes.append(bombe.rect.x, bombe.rect.y)
+            centres_bombes = []
+            for bombe in self.bombes:
+                centres_bombes.append((bombe.rect.x, bombe.rect.y))
             for c in self.clients:
                 c.update()
-                c.Send({"action": "bombes", "bombes": self.bombes})
+                c.Send({"action": "bombes", "bombes": centres_bombes})
 
 
 if __name__ == "__main__":

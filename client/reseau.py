@@ -110,4 +110,4 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
     def Network_bombes(self, data):
         self.empty()
         for bombe in data["bombes"]:
-            self.add(Bombe(bombe[0], Bombe[1]))
+            self.add(Bombe(bombe[0], bombe[1]))

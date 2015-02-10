@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eb25e3c9-ecff-4188-aebb-036383e6d0c1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/main.py" afterPath="$PROJECT_DIR$/client/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Serveur.py" afterPath="$PROJECT_DIR$/Serveur.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/reseau.py" afterPath="$PROJECT_DIR$/client/reseau.py" />
     </list>
     <ignored path="BomberLAN.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -40,9 +40,11 @@
       <file leaf-file-name="reseau.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/reseau.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.06338028" vertical-offset="15" max-vertical-offset="1785">
-              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-              <folding />
+            <state vertical-scroll-proportion="0.59859157" vertical-offset="1075" max-vertical-offset="1785">
+              <caret line="100" column="40" selection-start-line="100" selection-start-column="40" selection-end-line="100" selection-end-column="40" />
+              <folding>
+                <element signature="e#17#27#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -60,8 +62,8 @@
       <file leaf-file-name="Serveur.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Serveur.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="3040" max-vertical-offset="3750">
-              <caret line="162" column="0" selection-start-line="162" selection-start-column="0" selection-end-line="162" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="3025" max-vertical-offset="3750">
+              <caret line="236" column="68" selection-start-line="236" selection-start-column="68" selection-end-line="236" selection-end-column="68" />
               <folding />
             </state>
           </provider>
@@ -78,9 +80,9 @@
         <option value="$PROJECT_DIR$/Client.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/client/config.py" />
-        <option value="$PROJECT_DIR$/Serveur.py" />
         <option value="$PROJECT_DIR$/serveur.py" />
         <option value="$PROJECT_DIR$/client/main.py" />
+        <option value="$PROJECT_DIR$/Serveur.py" />
         <option value="$PROJECT_DIR$/client/reseau.py" />
       </list>
     </option>
@@ -113,7 +115,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -148,6 +149,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -370,7 +372,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="180" max-vertical-offset="1560">
           <caret line="12" column="28" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
-          <folding />
+          <folding>
+            <element signature="e#17#27#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -462,18 +466,18 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Serveur.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2370" max-vertical-offset="3750">
-          <caret line="162" column="0" selection-start-line="162" selection-start-column="0" selection-end-line="162" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="130" max-vertical-offset="840">
           <caret line="48" column="39" selection-start-line="48" selection-start-column="39" selection-end-line="48" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Serveur.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3025" max-vertical-offset="3750">
+          <caret line="236" column="68" selection-start-line="236" selection-start-column="68" selection-end-line="236" selection-end-column="68" />
           <folding />
         </state>
       </provider>
@@ -488,9 +492,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/reseau.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.06338028" vertical-offset="15" max-vertical-offset="1785">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="0.59859157" vertical-offset="1075" max-vertical-offset="1785">
+          <caret line="100" column="40" selection-start-line="100" selection-start-column="40" selection-end-line="100" selection-end-column="40" />
+          <folding>
+            <element signature="e#17#27#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
