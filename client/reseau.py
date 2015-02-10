@@ -4,9 +4,10 @@ import sys
 import pygame
 
 from PodSixNet.Connection import connection, ConnectionListener
-from joueur import Joueur
 
-from functions import load_png
+from joueur import Joueur
+from bomberLAN.config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR
+from bomberLAN.functions import load_png
 
 
 class BomberlanClient(ConnectionListener):
@@ -43,7 +44,7 @@ class Mur(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/mur.png")
+        self.image, self.rect = load_png(ASSET_MUR)
 
         self.rect.center = (x, y)
 
@@ -53,7 +54,7 @@ class Caisse(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/caisse_2.png")
+        self.image, self.rect = load_png(ASSET_CAISSE)
 
         self.rect.center = (x, y)
 
@@ -63,7 +64,7 @@ class Bombe(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/bombe3.png")
+        self.image, self.rect = load_png(ASSET_BOMBE)
 
         self.rect.center = (x, y)
 

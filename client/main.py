@@ -3,10 +3,11 @@
 import pygame
 import sys
 
-import config
+from bomberLAN import config
 from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes
 from joueur import GroupeJoueurs
-from functions import load_png
+from bomberLAN.functions import load_png
+from bomberLAN.config import ASSET_SOL, ASSET_JOUEUR
 
 
 def main_function():
@@ -75,7 +76,7 @@ class Sol(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/bg_1.png")
+        self.image, self.rect = load_png(ASSET_SOL)
 
         self.rect.center = (x, y)
 
@@ -85,6 +86,6 @@ class Shadow(pygame.sprite.Sprite):
 
     def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/shadow.png")
+        self.image, self.rect = load_png(ASSET_JOUEUR['SHADOW'])
 
         self.rect.center = center

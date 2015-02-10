@@ -3,7 +3,9 @@
 import pygame
 
 from PodSixNet.Connection import ConnectionListener
-from functions import load_png
+
+from bomberLAN.functions import load_png
+from bomberLAN.config import ASSET_JOUEUR
 
 
 class Joueur(pygame.sprite.Sprite):
@@ -13,9 +15,9 @@ class Joueur(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.numero = numero
 
-        self.bas = load_png("assets/joueur_bas.png")[0]
-        self.haut = load_png("assets/joueur_haut.png")[0]
-        self.droite = load_png("assets/joueur_droite.png")[0]
+        self.bas = load_png(ASSET_JOUEUR['BAS'])[0]
+        self.haut = load_png(ASSET_JOUEUR['HAUT'])[0]
+        self.droite = load_png(ASSET_JOUEUR['HAUT'])[0]
         self.gauche = pygame.transform.flip(self.droite, True, False)
 
         self.image, self.rect = self.bas, self.bas.get_rect()

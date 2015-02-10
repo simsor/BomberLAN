@@ -1,62 +1,49 @@
 #!/usr/bin/env python2
 # coding: utf-8
 
+import pygame
+import sys
+import os
+
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
-from client import config
-import pygame
-import sys, os
-
-
-def load_png(name):
-    """Load image and return image object"""
-    fullname = os.path.join('.', name)
-    try:
-        image = pygame.image.load(fullname)
-        if image.get_alpha is None:
-            image = image.convert()
-        else:
-            image = image.convert_alpha()
-    except pygame.error, message:
-        print 'Cannot load image:', fullname
-        raise SystemExit, message
-
-    return image, image.get_rect()
+from bomberLAN import config
+from functions import load_png
+from config import ASSET_JOUEUR, ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE
 
 
 class Bombe(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
+        self.sprite = load_png(ASSET_BOMBE)[0]
 
-        self.sprite1 = load_png("assets/bombe1.png")[0]
-        self.sprite2 = load_png("assets/bombe2.png")[0]
-        self.sprite3 = load_png("assets/bombe3.png")[0]
-
-        self.image, self.rect = self.sprite1, self.sprite1.get_rect()
+        self.image, self.rect = self.sprite, self.sprite.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.time = config.TIME
 
+    """
     def explose(self):
         if self.image == self.sprite1:
             self.image = self.sprite2
         if self.image == self.sprite2:
             self.image = self.sprite3
+    """
 
 
     def update(self, serveur):
         self.time -= 1
         # if self.time <= 0:
-        #   self.explose()
+        # self.explose()
 
 
 class Joueur(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
 
-        self.bas = load_png("assets/joueur_bas.png")[0]
-        self.haut = load_png("assets/joueur_haut.png")[0]
-        self.droite = load_png("assets/joueur_droite.png")[0]
+        self.bas = load_png(ASSET_JOUEUR['BAS'])[0]
+        self.haut = load_png(ASSET_JOUEUR['HAUT'])[0]
+        self.droite = load_png(ASSET_JOUEUR['DROITE'])[0]
         self.gauche = pygame.transform.flip(self.droite, True, False)
         self.direction = "bas"
 
@@ -117,7 +104,7 @@ class Mur(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/mur.png")
+        self.image, self.rect = load_png(ASSET_MUR)
 
         self.rect.topleft = (x, y)
 
@@ -127,7 +114,7 @@ class Caisse(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png("assets/caisse_2.png")
+        self.image, self.rect = load_png(ASSET_CAISSE)
 
         self.rect.topleft = (x, y)
 
