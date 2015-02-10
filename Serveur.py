@@ -15,21 +15,15 @@ from config import ARENA_HEIGHT, ARENA_WIDTH, BOMB_DELAY, PLAYER_SPEED, BOMB_RAN
 
 
 def bombeCollide(sprite1, sprite2):
-    tl = sprite2.rect.collidepoint(sprite1.topleft)
-    tr = sprite2.rect.collidepoint(sprite1.topright)
-    bl = sprite2.rect.collidepoint(sprite1.bottomleft)
-    br = sprite2.rect.collidepoint(sprite1.topright)
-
-    return (tl or tr or bl or br)
+    return sprite2.rect.collidepoint((sprite1.x, sprite1.y))
 
 
 class Bombe(pygame.sprite.Sprite):
     def __init__(self, joueur, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.sprite = load_png(ASSET_BOMBE)[0]
         self.joueur = joueur
 
-        self.image, self.rect = self.sprite, self.sprite.get_rect()
+        self.image, self.rect = load_png(ASSET_BOMBE)
         self.rect.x = x
         self.rect.y = y
         self.time = BOMB_DELAY
@@ -46,6 +40,7 @@ class Bombe(pygame.sprite.Sprite):
     def chercher(self, portee, rect, speed, murs, caisses):
         if portee > 0:
             rectangle = rect.move(speed)
+            pprint(rectangle)
             if pygame.sprite.spritecollideany(rectangle, murs, collided=bombeCollide) or \
                     pygame.sprite.spritecollideany(rectangle, caisses, collided=bombeCollide):
                 return 0
