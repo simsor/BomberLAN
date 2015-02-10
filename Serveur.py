@@ -94,7 +94,7 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe):
-        groupeBombe += Bombe(self.rect.x, self.rect.y)
+        groupeBombe.append(Bombe(self.rect.x, self.rect.y))
 
         
     def update(self, serveur):
@@ -140,6 +140,7 @@ class ClientChannel(Channel):
     def update(self):
         self.joueur.update(self._server)
         self.Send({"action": "joueur", "centre": self.joueur.rect.center, "direction": self.joueur.direction})
+
         
     def Network_keys(self, data):
         touches = data["keys"];
@@ -152,7 +153,7 @@ class ClientChannel(Channel):
         if touches[pygame.K_RIGHT]:
             self.joueur.right()
         if touches[pygame.K_SPACE]:
-            self.joueur.poseBombe()
+            self.joueur.poseBombe(self._server.groupeBombe)
 
 
 class MyServer(Server):
@@ -166,6 +167,7 @@ class MyServer(Server):
         self.clients = []
         self.groupeBombe = []
         self.clock = pygame.time.Clock()
+        self.bombes = []
 
         self.murs = pygame.sprite.Group()
         self.caisses = pygame.sprite.Group()
@@ -218,9 +220,12 @@ class MyServer(Server):
         while True:
             self.clock.tick(60)
             self.Pump()
-
+            for bombe in self.groupeBombe:
+                    self.bombes.append(bombe.rect.x, bombe.rect.y)
             for c in self.clients:
                 c.update()
+                c.Send({"action": "bombes", "bombes": self.bombes})
+
                 
 
 if __name__ == "__main__":
