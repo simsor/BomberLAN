@@ -2,11 +2,12 @@
 
 import sys
 import pygame
+import pprint
 
 from PodSixNet.Connection import connection, ConnectionListener
 
 from joueur import Joueur
-from config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR
+from config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR, ASSET_FLAME
 from functions import load_png
 
 
@@ -68,6 +69,9 @@ class Bombe(pygame.sprite.Sprite):
 
         self.rect.center = (x, y)
 
+    def explose(self):
+        self.image = load_png(ASSET_FLAME)[0]
+
 
 class GroupeMurs(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de murs qui écoute sur le réseau """
@@ -94,12 +98,20 @@ class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
 
 
 class GroupeBombes(pygame.sprite.Group, ConnectionListener):
-    """ Représente un groupe de de bombe qui écoute le réseau"""
+    """ Représente un groupe de bombes qui écoute le réseau"""
 
     def __init__(self):
         pygame.sprite.Group.__init__(self)
 
-    def Network_bombes(self, data):
-        self.empty()
-        for bombe in data["bombes"]:
-            self.add(Bombe(bombe[0], bombe[1]))
+    def Network_bombe(self, data):
+        bombe = data['bombe']
+        self.add(Bombe(bombe[0], bombe[1]))
+
+    def Network_bombe_explose(self, data):
+        self.bombeByXY(data['x'], data['y']).explose()
+
+    def Network_bombe_remove(self, data):
+        self.bombeByXY(data['x'], data['y']).kill()
+
+    def bombeByXY(self, x, y):
+        return [bombe for bombe in self if bombe.rect.center == (x, y)][0]

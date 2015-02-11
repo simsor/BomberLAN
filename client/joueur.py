@@ -17,7 +17,7 @@ class Joueur(pygame.sprite.Sprite):
 
         self.bas = load_png(ASSET_JOUEUR['BAS'])[0]
         self.haut = load_png(ASSET_JOUEUR['HAUT'])[0]
-        self.droite = load_png(ASSET_JOUEUR['HAUT'])[0]
+        self.droite = load_png(ASSET_JOUEUR['DROITE'])[0]
         self.gauche = pygame.transform.flip(self.droite, True, False)
 
         self.image, self.rect = self.bas, self.bas.get_rect()

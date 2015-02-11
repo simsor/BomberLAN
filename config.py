@@ -13,6 +13,7 @@ ARENA_HEIGHT = 17
 # Timer avant explosion en frame
 
 BOMB_DELAY = 120
+BOMB_EXPLOSE_DELAY = 40
 BOMB_RANGE = 2
 
 # Images / assets :
@@ -23,6 +24,7 @@ ASSET = "assets/"
 ASSET_MUR = ASSET + "mur.png"
 ASSET_CAISSE = ASSET + "caisse_2.png"
 ASSET_BOMBE = ASSET + "bombe3.png"
+ASSET_FLAME = ASSET + "flame.png"
 ASSET_JOUEUR = {
     'BAS': ASSET + "joueur_bas.png",
     'HAUT': ASSET + "joueur_haut.png",

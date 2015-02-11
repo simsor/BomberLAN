@@ -11,7 +11,7 @@ from PodSixNet.Server import Server
 
 from functions import load_png
 from config import ASSET_JOUEUR, ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE
-from config import ARENA_HEIGHT, ARENA_WIDTH, BOMB_DELAY, PLAYER_SPEED, BOMB_RANGE
+from config import ARENA_HEIGHT, ARENA_WIDTH, BOMB_DELAY, PLAYER_SPEED, BOMB_RANGE, BOMB_EXPLOSE_DELAY
 
 
 def bombeCollide(sprite1, sprite2):
@@ -31,10 +31,10 @@ class Bombe(pygame.sprite.Sprite):
     def explose(self, murs, caisses):
         """ Explosion de la bombe : gère l'explosion """
         portee = {}
-        portee["left"] = self.chercher(BOMB_RANGE, self.rect, [-32, 0], murs, caisses)
-        portee["right"] = self.chercher(BOMB_RANGE, self.rect, [32, 0], murs, caisses)
-        portee["up"] = self.chercher(BOMB_RANGE, self.rect, [0, -32], murs, caisses)
-        portee["down"] = self.chercher(BOMB_RANGE, self.rect, [0, 32], murs, caisses)
+        portee["haut"] = self.chercher(BOMB_RANGE, self.rect, [0, -32], murs, caisses)
+        portee["droite"] = self.chercher(BOMB_RANGE, self.rect, [32, 0], murs, caisses)
+        portee["bas"] = self.chercher(BOMB_RANGE, self.rect, [0, 32], murs, caisses)
+        portee["gauche"] = self.chercher(BOMB_RANGE, self.rect, [-32, 0], murs, caisses)
         return portee
 
     def chercher(self, portee, rect, speed, murs, caisses):
@@ -49,9 +49,17 @@ class Bombe(pygame.sprite.Sprite):
     def update(self, serveur):
         """ Mise à jour de la bombe : réduit le timer, celle-ci explose lorsque timer == 0 """
         self.time -= 1
-        if self.time <= 0:
-            pprint(self.explose(serveur.murs, serveur.caisses))
+        if self.time == 0:
+            deflagration = self.explose(serveur.murs, serveur.caisses)
+            pprint(deflagration)
+            for c in serveur.clients:
+                c.Send({'action': 'bombe_explose', 'x': self.rect.x, 'y': self.rect.y, 'portee': deflagration})
+
+        if self.time == (-BOMB_EXPLOSE_DELAY):
+            for c in serveur.clients:
+                c.Send({'action': 'bombe_remove', 'x': self.rect.x, 'y': self.rect.y})
             self.kill()
+            print "bombe removed"
 
 
 class Joueur(pygame.sprite.Sprite):
@@ -81,17 +89,20 @@ class Joueur(pygame.sprite.Sprite):
         self.speed[0] = PLAYER_SPEED
         self.direction = "droite"
 
-    def poseBombe(self, groupeBombe):
+    def poseBombe(self, groupeBombe, channels):
         bombx = (32 * round(self.rect.centerx / 32)) + 16
         bomby = (32 * round(self.rect.centery / 32)) + 16
-        for bombe in groupeBombe:
-            if bombe.rect.x == bombx and bombe.rect.y == bomby:
+        for b in groupeBombe:
+            if b.rect.x == bombx and b.rect.y == bomby:
                 return  # Il y a déjà une bombe ici, on annule
 
-            if bombe.joueur == self:
-                return  # Il a déjà posé une bombe, en attente qu'elle explose
+            if b.joueur == self:
+                return  # Il a déjà posé une bombe
 
-        groupeBombe.add(Bombe(self, bombx, bomby))
+        bombe = Bombe(self, bombx, bomby)
+        groupeBombe.add(bombe)
+        for c in channels:
+            c.Send({'action': 'bombe', 'bombe': (bombe.rect.x, bombe.rect.y)})
 
     def update(self, serveur):
         ancienCentre = self.rect.center
@@ -153,7 +164,7 @@ class ClientChannel(Channel):
         if touches[pygame.K_RIGHT]:
             self.joueur.right()
         if touches[pygame.K_SPACE]:
-            self.joueur.poseBombe(self._server.bombes)
+            self.joueur.poseBombe(self._server.bombes, self._server.clients)
 
 
 class MyServer(Server):
@@ -232,13 +243,9 @@ class MyServer(Server):
             # On update les bombes
             self.bombes.update(self)
 
-            # On récupère tous les centres des bombes
-            centres_bombes = [(bombe.rect.x, bombe.rect.y) for bombe in self.bombes]
-
             # On envoie toutes les données aux clients
             for c in self.clients:
                 c.update()
-                c.Send({"action": "bombes", "bombes": centres_bombes})
 
 
 if __name__ == "__main__":
