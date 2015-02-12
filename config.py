@@ -25,6 +25,12 @@ ASSET_MUR = ASSET + "mur.png"
 ASSET_CAISSE = ASSET + "caisse_2.png"
 ASSET_BOMBE = ASSET + "bombe3.png"
 ASSET_FLAME = ASSET + "flame.png"
+ASSET_ANIMATE_FLAMES = {
+    0: ASSET + "flame_1.png",
+    1: ASSET + "flame_2.png",
+    2: ASSET + "flame_3.png",
+    3: ASSET + "flame_4.png"
+}
 ASSET_JOUEUR = {
     'BAS': ASSET + "joueur_bas.png",
     'HAUT': ASSET + "joueur_haut.png",

@@ -53,6 +53,8 @@ def main_function():
             flammes.Pump()
             client.Loop()
 
+            flammes.update()
+
             screen.fill((255, 255, 255))
             background.draw(screen)
 

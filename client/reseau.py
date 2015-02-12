@@ -2,13 +2,11 @@
 
 import sys
 import pygame
-import pprint
 
 from PodSixNet.Connection import connection, ConnectionListener
 
 from joueur import Joueur
-from config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR, ASSET_FLAME
-from functions import load_png
+from map import Caisse, Mur, Bombe, Flamme
 
 
 class BomberlanClient(ConnectionListener):
@@ -38,46 +36,6 @@ class BomberlanClient(ConnectionListener):
     def Loop(self):
         connection.Pump()
         self.Pump()
-
-
-class Mur(pygame.sprite.Sprite):
-    """ Représente un mur indestructible """
-
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png(ASSET_MUR)
-
-        self.rect.center = (x, y)
-
-
-class Caisse(pygame.sprite.Sprite):
-    """ Représente une caisse destructible """
-
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png(ASSET_CAISSE)
-
-        self.rect.center = (x, y)
-
-
-class Bombe(pygame.sprite.Sprite):
-    """ Représente une bombe déposée par un joueur """
-
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png(ASSET_BOMBE)
-
-        self.rect.center = (x, y)
-
-
-class Flamme(pygame.sprite.Sprite):
-    """ Représente une caisse destructible """
-
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png(ASSET_FLAME)
-
-        self.rect.center = (x, y)
 
 
 class GroupeMurs(pygame.sprite.Group, ConnectionListener):
@@ -110,10 +68,15 @@ class GroupeFlammes(pygame.sprite.Group, ConnectionListener):
     def __init__(self):
         pygame.sprite.Group.__init__(self)
 
-    def Network_flammes(self, data):
-        self.empty()
-        for flamme in data["flammes"]:
-            self.add(Flamme(flamme[0], flamme[1]))
+    def Network_flamme(self, data):
+        flamme = data['flamme']
+        self.add(Flamme(flamme[0], flamme[1]))
+
+    def Network_flamme_remove(self, data):
+        self.flammeByCenter(data['flamme']).kill()
+
+    def flammeByCenter(self, center):
+        return [flamme for flamme in self if flamme.rect.center == center][0]
 
 
 class GroupeBombes(pygame.sprite.Group, ConnectionListener):

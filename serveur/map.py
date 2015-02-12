@@ -64,9 +64,10 @@ class Bombe(pygame.sprite.Sprite):
                     elif direction == GAUCHE:
                         xAbs -= 32
                     serveur.flammes.add(Flamme(xAbs, yAbs))
-            serveur.update_flammes()
 
             for c in serveur.clients:
+                for flamme in serveur.flammes:
+                    c.Send({'action': 'flamme', 'flamme': flamme.rect.center})
                 c.Send({'action': 'bombe_remove', 'bombe': self.rect.center})
             self.kill()
 
@@ -81,12 +82,14 @@ class Flamme(pygame.sprite.Sprite):
         self.rect = load_png(ASSET_FLAME)[1]
         self.rect.center = (x, y)
 
-        self.time = BOMB_EXPLOSE_DELAY
+        self.timer = BOMB_EXPLOSE_DELAY
 
-    def update(self):
+    def update(self, serveur):
         """ Mise à jour de la flamme : réduit le timer, celle-ci disparaît lorsque timer == 0 """
-        self.time -= 1
-        if self.time == 0:
+        self.timer -= 1
+        if self.timer == 0:
+            for c in serveur.clients:
+                c.Send({'action': 'flamme_remove', 'flamme': self.rect.center})
             self.kill()
 
 

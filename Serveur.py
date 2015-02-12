@@ -93,7 +93,6 @@ class MyServer(Server):
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = [mur.rect.center for mur in self.murs]
         self.centres_caisses = [caisse.rect.center for caisse in self.caisses]
-        self.centres_flammes = []
 
         self.main_loop()
 
@@ -105,7 +104,6 @@ class MyServer(Server):
         # On envoie les murs et les caisses
         channel.Send({"action": "murs", "murs": self.centres_murs})
         channel.Send({"action": "caisses", "caisses": self.centres_caisses})
-        channel.Send({'action': 'flammes', 'flammes': self.centres_flammes})
 
         # On envoie les autres joueurs connectés
         for c in self.clients:
@@ -118,11 +116,13 @@ class MyServer(Server):
         print "Client déconnecté"
         self.clients.remove(channel)
 
+    """
     def update_flammes(self):
-        """ Envoie toutes les flammes à tous les clients """
-        self.centres_flammes = [f.rect.center for f in self.flammes]
+        # Envoie toutes les flammes à tous les clients
+        self.centres_flammes = [(f.rect.centerx, f.rect.centery, f.timer) for f in self.flammes]
         for c in self.channels:
             c.Send({'action': 'flammes', 'flammes': self.centres_flammes})
+    """
 
     def update_caisses(self):
         """ Envoie toutes les caisses à tous les clients """
@@ -142,10 +142,13 @@ class MyServer(Server):
             self.bombes.update(self)
 
             # On update les flammes
+            self.flammes.update(self)
+            """
             nb_flammes = len(self.flammes)
             self.flammes.update()
             if nb_flammes != len(self.flammes):
                 self.update_flammes()
+            """
 
             # On update les caisses
             nb_caisses = len(self.caisses)
