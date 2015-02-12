@@ -16,8 +16,14 @@ class Joueur(pygame.sprite.Sprite):
 
         self.image, self.rect = load_png(ASSET_JOUEUR['BAS'])
         self.rect.topleft = (x, y)
+        self.spawn = (x, y)
         self.direction = "bas"
 
+        self.speed = [0, 0]
+
+    def respawn(self):
+        self.rect.topleft = self.spawn
+        self.direction = "bas"
         self.speed = [0, 0]
 
     def up(self):
@@ -63,7 +69,7 @@ class Joueur(pygame.sprite.Sprite):
             self.rect.y = 32 * round(self.rect.midright[1] / 32)
 
         if pygame.sprite.spritecollide(self, serveur.flammes, False, pygame.sprite.collide_rect_ratio(0.9)):
-            self.rect.topleft = (32, 32)
             print "Un joueur vient de mourir"
+            self.respawn()
 
         self.speed = [0, 0]

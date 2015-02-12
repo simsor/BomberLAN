@@ -14,7 +14,6 @@ from serveur.joueur import Joueur
 class ClientChannel(Channel):
     def __init__(self, *args, **kwargs):
         Channel.__init__(self, *args, **kwargs)
-        self.joueur = Joueur(32, 32)
         self.numero = 0
 
     def Close(self):
@@ -98,7 +97,16 @@ class MyServer(Server):
 
     def Connected(self, channel, addr):
         print "Connexion de %s:%d" % (addr[0], addr[1])
-        channel.numero = len(self.clients)
+        nb_player = len(self.clients)
+        if nb_player > 3:
+            self.clients.remove(channel)
+            print "Impossible de connecter le joueur, le serveur est plein (4 joueurs sont présents)"
+            return
+
+        channel.numero = nb_player
+        xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * 32
+        ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * 32
+        channel.joueur = Joueur(xSpawn, ySpawn)
         channel.Send({"action": "numero", "numero": channel.numero})
 
         # On envoie les murs et les caisses
@@ -119,8 +127,12 @@ class MyServer(Server):
         self.clients.append(channel)
 
     def del_client(self, channel):
-        print "Client déconnecté"
+        numero = channel.numero
+        print "Client %d déconnecté" % (numero)
         self.clients.remove(channel)
+        for c in self.clients:
+            c.Send({"action": "joueur_disconnected", "numero": numero})
+
 
     def update_caisses(self):
         """ Envoie toutes les caisses à tous les clients """

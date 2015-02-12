@@ -48,7 +48,9 @@ class GroupeJoueurs(pygame.sprite.Group, ConnectionListener):
         print "Connection du joueur %d" % (data["numero"])
         self.add(Joueur(data["numero"]))
 
+    def Network_joueur_disconnected(self, data):
+        print "Deconnection du joueur %d" % (data["numero"])
+        self.joueurByNumero(data["numero"]).kill()
+
     def joueurByNumero(self, numero):
-        for joueur in self:
-            if joueur.numero == numero:
-                return joueur
+        return [j for j in self if j.numero == numero][0]
