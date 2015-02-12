@@ -3,7 +3,7 @@
 import pygame
 import sys
 
-from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes
+from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes, GroupeFlammes
 from joueur import GroupeJoueurs
 from map import Sol, Shadow
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_HEIGHT, ARENA_WIDTH
@@ -28,6 +28,7 @@ def main_function():
     murs = GroupeMurs()
     caisses = GroupeCaisses()
     bombes = GroupeBombes()
+    flammes = GroupeFlammes()
     background = pygame.sprite.Group()
 
     for i in range(0, ARENA_WIDTH):
@@ -49,6 +50,7 @@ def main_function():
             murs.Pump()
             caisses.Pump()
             bombes.Pump()
+            flammes.Pump()
             client.Loop()
 
             screen.fill((255, 255, 255))
@@ -63,6 +65,7 @@ def main_function():
             caisses.draw(screen)
             bombes.draw(screen)
             joueurs.draw(screen)
+            flammes.draw(screen)
 
             pygame.display.flip()
 

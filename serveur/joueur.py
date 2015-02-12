@@ -15,8 +15,7 @@ class Joueur(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         self.image, self.rect = load_png(ASSET_JOUEUR['BAS'])
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.topleft = (x, y)
         self.direction = "bas"
 
         self.speed = [0, 0]
@@ -62,5 +61,9 @@ class Joueur(pygame.sprite.Sprite):
             # On arrondit la position pour qu'il soit aligné
             self.rect.x = 32 * round(self.rect.midtop[0] / 32)
             self.rect.y = 32 * round(self.rect.midright[1] / 32)
+
+        if pygame.sprite.spritecollide(self, serveur.flammes, False):
+            self.rect.topleft = (32, 32)
+            print "Un joueur vient de mourir"
 
         self.speed = [0, 0]

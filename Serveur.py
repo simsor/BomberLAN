@@ -56,6 +56,7 @@ class MyServer(Server):
         self.caisses.add(Caisse(3 * 32, 1 * 32))
         self.caisses.add(Caisse(10 * 32, 5 * 32))
         self.bombes = pygame.sprite.Group()
+        self.flammes = pygame.sprite.Group()
 
         print "Serveur en écoute sur le port %d" % (port)
 
@@ -105,6 +106,18 @@ class MyServer(Server):
         print "Client déconnecté"
         self.clients.remove(channel)
 
+    def update_flammes(self):
+        """ Envoie toutes les flammes à tous les clients """
+        centres_flammes = [f.rect.topleft for f in self.flammes]
+        for c in self.channels:
+            c.Send({'action': 'flammes', 'flammes': centres_flammes})
+
+    def update_caisses(self):
+        """ Envoie toutes les caisses à tous les clients """
+        centres_caisses = [f.rect.center for f in self.caisses]
+        for c in self.channels:
+            c.Send({'action': 'caisses', 'caisses': centres_caisses})
+
     def main_loop(self):
         """
         Boucle principale du serveur : gère l'envoie et la réception des données principalement
@@ -115,6 +128,18 @@ class MyServer(Server):
 
             # On update les bombes
             self.bombes.update(self)
+
+            # On update les flammes
+            nb_flammes = len(self.flammes)
+            self.flammes.update()
+            if nb_flammes != len(self.flammes):
+                self.update_flammes()
+
+            # On update les caisses
+            nb_caisses = len(self.caisses)
+            self.caisses.update(self.flammes)
+            if nb_caisses != len(self.caisses):
+                self.update_caisses()
 
             # On envoie toutes les données aux clients
             for c in self.clients:

@@ -66,11 +66,16 @@ class Bombe(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_BOMBE)
-
         self.rect.center = (x, y)
 
-    def explose(self):
-        self.image = load_png(ASSET_FLAME)[0]
+
+class Flamme(pygame.sprite.Sprite):
+    """ Représente une caisse destructible """
+
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_png(ASSET_FLAME)
+        self.rect.center = (x, y)
 
 
 class GroupeMurs(pygame.sprite.Group, ConnectionListener):
@@ -97,6 +102,18 @@ class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
             self.add(Caisse(caisse[0], caisse[1]))
 
 
+class GroupeFlammes(pygame.sprite.Group, ConnectionListener):
+    """ Représente un groupe de flammes qui écoute sur le réseau """
+
+    def __init__(self):
+        pygame.sprite.Group.__init__(self)
+
+    def Network_flammes(self, data):
+        self.empty()
+        for flamme in data["flammes"]:
+            self.add(Flamme(flamme[0], flamme[1]))
+
+
 class GroupeBombes(pygame.sprite.Group, ConnectionListener):
     """ Représente un groupe de bombes qui écoute le réseau"""
 
@@ -106,9 +123,6 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
     def Network_bombe(self, data):
         bombe = data['bombe']
         self.add(Bombe(bombe[0], bombe[1]))
-
-    def Network_bombe_explose(self, data):
-        self.bombeByXY(data['x'], data['y']).explose()
 
     def Network_bombe_remove(self, data):
         self.bombeByXY(data['x'], data['y']).kill()
