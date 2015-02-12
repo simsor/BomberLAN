@@ -105,6 +105,12 @@ class MyServer(Server):
         channel.Send({"action": "murs", "murs": self.centres_murs})
         channel.Send({"action": "caisses", "caisses": self.centres_caisses})
 
+        # On envoie les bombes et les flammes
+        for bombe in self.bombes:
+            channel.Send({'action': 'bombe', 'bombe': bombe.rect.center})
+        for flamme in self.flammes:
+            channel.Send({'action': 'flamme', 'flamme': flamme.rect.center})
+
         # On envoie les autres joueurs connectés
         for c in self.clients:
             c.Send({"action": "joueur", "numero": channel.numero})
@@ -115,14 +121,6 @@ class MyServer(Server):
     def del_client(self, channel):
         print "Client déconnecté"
         self.clients.remove(channel)
-
-    """
-    def update_flammes(self):
-        # Envoie toutes les flammes à tous les clients
-        self.centres_flammes = [(f.rect.centerx, f.rect.centery, f.timer) for f in self.flammes]
-        for c in self.channels:
-            c.Send({'action': 'flammes', 'flammes': self.centres_flammes})
-    """
 
     def update_caisses(self):
         """ Envoie toutes les caisses à tous les clients """
@@ -143,12 +141,6 @@ class MyServer(Server):
 
             # On update les flammes
             self.flammes.update(self)
-            """
-            nb_flammes = len(self.flammes)
-            self.flammes.update()
-            if nb_flammes != len(self.flammes):
-                self.update_flammes()
-            """
 
             # On update les caisses
             nb_caisses = len(self.caisses)
