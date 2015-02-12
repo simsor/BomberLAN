@@ -53,8 +53,6 @@ class MyServer(Server):
 
         self.murs = pygame.sprite.Group()
         self.caisses = pygame.sprite.Group()
-        self.caisses.add(Caisse(3 * 32, 1 * 32))
-        self.caisses.add(Caisse(10 * 32, 5 * 32))
         self.bombes = pygame.sprite.Group()
         self.flammes = pygame.sprite.Group()
 
@@ -75,14 +73,27 @@ class MyServer(Server):
                 if i % 2 == 0 and j % 2 == 0:
                     self.murs.add(Mur(i * 32, j * 32))
 
-        # On crée les listes de centres de murs et de caisses
-        self.centres_murs = []
-        for mur in self.murs:
-            self.centres_murs.append(mur.rect.center)
+        # On crée les caisses : on rempli le centre, en ne laissant que les spawns de libres
+        for i in range(3, ARENA_WIDTH - 3, 1):
+            self.caisses.add(Caisse(i * 32, 1 * 32))
+            self.caisses.add(Caisse(i * 32, (ARENA_HEIGHT - 2) * 32))
 
-        self.centres_caisses = []
-        for caisse in self.caisses:
-            self.centres_caisses.append(caisse.rect.center)
+        for i in range(3, ARENA_HEIGHT - 3, 1):
+            self.caisses.add(Caisse(1 * 32, i * 32))
+            self.caisses.add(Caisse((ARENA_WIDTH - 2) * 32, i * 32))
+
+        for i in range(2, ARENA_HEIGHT - 2, 1):
+            if i % 2 == 0:
+                for j in range(3, ARENA_WIDTH - 3, 2):
+                    self.caisses.add(Caisse(j * 32, i * 32))
+            else:
+                for j in range(2, ARENA_WIDTH - 2, 1):
+                    self.caisses.add(Caisse(j * 32, i * 32))
+
+        # On crée les listes de centres de murs et de caisses
+        self.centres_murs = [mur.rect.center for mur in self.murs]
+        self.centres_caisses = [caisse.rect.center for caisse in self.caisses]
+        self.centres_flammes = []
 
         self.main_loop()
 
@@ -94,6 +105,7 @@ class MyServer(Server):
         # On envoie les murs et les caisses
         channel.Send({"action": "murs", "murs": self.centres_murs})
         channel.Send({"action": "caisses", "caisses": self.centres_caisses})
+        channel.Send({'action': 'flammes', 'flammes': self.centres_flammes})
 
         # On envoie les autres joueurs connectés
         for c in self.clients:
@@ -108,15 +120,15 @@ class MyServer(Server):
 
     def update_flammes(self):
         """ Envoie toutes les flammes à tous les clients """
-        centres_flammes = [f.rect.topleft for f in self.flammes]
+        self.centres_flammes = [f.rect.center for f in self.flammes]
         for c in self.channels:
-            c.Send({'action': 'flammes', 'flammes': centres_flammes})
+            c.Send({'action': 'flammes', 'flammes': self.centres_flammes})
 
     def update_caisses(self):
         """ Envoie toutes les caisses à tous les clients """
-        centres_caisses = [f.rect.center for f in self.caisses]
+        self.centres_caisses = [c.rect.center for c in self.caisses]
         for c in self.channels:
-            c.Send({'action': 'caisses', 'caisses': centres_caisses})
+            c.Send({'action': 'caisses', 'caisses': self.centres_caisses})
 
     def main_loop(self):
         """

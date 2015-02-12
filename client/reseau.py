@@ -66,6 +66,7 @@ class Bombe(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_BOMBE)
+
         self.rect.center = (x, y)
 
 
@@ -75,6 +76,7 @@ class Flamme(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_FLAME)
+
         self.rect.center = (x, y)
 
 
@@ -125,7 +127,7 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
         self.add(Bombe(bombe[0], bombe[1]))
 
     def Network_bombe_remove(self, data):
-        self.bombeByXY(data['x'], data['y']).kill()
+        self.bombeByCenter(data['bombe']).kill()
 
-    def bombeByXY(self, x, y):
-        return [bombe for bombe in self if bombe.rect.center == (x, y)][0]
+    def bombeByCenter(self, center):
+        return [bombe for bombe in self if bombe.rect.center == center][0]

@@ -37,19 +37,19 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe, channels):
-        bombx = (32 * round(self.rect.centerx / 32)) + 16
-        bomby = (32 * round(self.rect.centery / 32)) + 16
+        bomb_x = (32 * round(self.rect.centerx / 32)) + 16
+        bomb_y = (32 * round(self.rect.centery / 32)) + 16
+        bombe_center = (bomb_x, bomb_y)
         for b in groupeBombe:
-            if b.rect.x == bombx and b.rect.y == bomby:
+            if b.rect.center == bombe_center:
                 return  # Il y a déjà une bombe ici, on annule
 
             if b.joueur == self:
                 return  # Il a déjà posé une bombe
 
-        bombe = Bombe(self, bombx, bomby)
-        groupeBombe.add(bombe)
+        groupeBombe.add(Bombe(self, bombe_center[0], bombe_center[1]))
         for c in channels:
-            c.Send({'action': 'bombe', 'bombe': (bombe.rect.x, bombe.rect.y)})
+            c.Send({'action': 'bombe', 'bombe': bombe_center})
 
     def update(self, serveur):
         ancienCentre = self.rect.center
@@ -62,7 +62,7 @@ class Joueur(pygame.sprite.Sprite):
             self.rect.x = 32 * round(self.rect.midtop[0] / 32)
             self.rect.y = 32 * round(self.rect.midright[1] / 32)
 
-        if pygame.sprite.spritecollide(self, serveur.flammes, False):
+        if pygame.sprite.spritecollide(self, serveur.flammes, False, pygame.sprite.collide_rect_ratio(0.9)):
             self.rect.topleft = (32, 32)
             print "Un joueur vient de mourir"
 

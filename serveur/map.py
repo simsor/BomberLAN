@@ -23,7 +23,7 @@ class Bombe(pygame.sprite.Sprite):
         self.joueur = joueur
 
         self.image, self.rect = load_png(ASSET_BOMBE)
-        self.rect.topleft = (x, y)
+        self.rect.center = (x, y)
         self.time = BOMB_DELAY
 
     def souffle(self, murs, caisses):
@@ -50,10 +50,10 @@ class Bombe(pygame.sprite.Sprite):
         self.time -= 1
         if self.time == 0:
             souffle = self.souffle(serveur.murs, serveur.caisses)
-            serveur.flammes.add(Flamme(self.rect.x, self.rect.y))
+            serveur.flammes.add(Flamme(self.rect.centerx, self.rect.centery))
 
             for direction in souffle:
-                xAbs, yAbs = self.rect.topleft
+                xAbs, yAbs = self.rect.center
                 for i in range(souffle[direction]):
                     if direction == HAUT:
                         yAbs -= 32
@@ -67,7 +67,7 @@ class Bombe(pygame.sprite.Sprite):
             serveur.update_flammes()
 
             for c in serveur.clients:
-                c.Send({'action': 'bombe_remove', 'x': self.rect.x, 'y': self.rect.y})
+                c.Send({'action': 'bombe_remove', 'bombe': self.rect.center})
             self.kill()
 
 
@@ -79,7 +79,7 @@ class Flamme(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.rect = load_png(ASSET_FLAME)[1]
-        self.rect.topleft = (x, y)
+        self.rect.center = (x, y)
 
         self.time = BOMB_EXPLOSE_DELAY
 

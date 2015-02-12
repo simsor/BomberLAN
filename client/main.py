@@ -19,7 +19,7 @@ def main_function():
 
     pygame.init()
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((ARENA_WIDTH * 32, ARENA_HEIGHT * 32), pygame.RESIZABLE)
     enCours = True
     clock = pygame.time.Clock()
 
