@@ -11,21 +11,23 @@ from config import ASSET_FLAME, ASSET_ANIMATE_FLAMES, BOMB_EXPLOSE_DELAY
 class Bombe(pygame.sprite.Sprite):
     """ Représente une bombe déposée par un joueur """
 
-    def __init__(self, x, y):
+    def __init__(self, id, center):
         pygame.sprite.Sprite.__init__(self)
+        self.id = id
         self.image, self.rect = load_png(ASSET_BOMBE)
 
-        self.rect.center = (x, y)
+        self.rect.center = center
 
 
 class Flamme(pygame.sprite.Sprite):
     """ Représente une caisse destructible """
 
-    def __init__(self, x, y):
+    def __init__(self, id, center):
         pygame.sprite.Sprite.__init__(self)
+        self.id = id
         self.image, self.rect = load_png(ASSET_FLAME)
 
-        self.rect.center = (x, y)
+        self.rect.center = center
         self.timer = BOMB_EXPLOSE_DELAY
         self.image_time = BOMB_EXPLOSE_DELAY / len(ASSET_ANIMATE_FLAMES)
 
@@ -40,11 +42,11 @@ class Flamme(pygame.sprite.Sprite):
 class Sol(pygame.sprite.Sprite):
     """Représente un sol animé"""
 
-    def __init__(self, x, y):
+    def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_SOL)
 
-        self.rect.center = (x, y)
+        self.rect.center = center
 
 
 class Shadow(pygame.sprite.Sprite):
@@ -60,18 +62,18 @@ class Shadow(pygame.sprite.Sprite):
 class Mur(pygame.sprite.Sprite):
     """ Représente un mur indestructible """
 
-    def __init__(self, x, y):
+    def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_MUR)
 
-        self.rect.center = (x, y)
+        self.rect.center = center
 
 
 class Caisse(pygame.sprite.Sprite):
     """ Représente une caisse destructible """
 
-    def __init__(self, x, y):
+    def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_CAISSE)
 
-        self.rect.center = (x, y)
+        self.rect.center = center

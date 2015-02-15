@@ -33,7 +33,8 @@ def main_function():
 
     for i in range(0, ARENA_WIDTH):
         for j in range(0, ARENA_HEIGHT):
-            background.add(Sol(i * 32, j * 32))
+            sol_center = (i * 32, j * 32)
+            background.add(Sol(sol_center))
 
     while enCours:
         clock.tick(60)

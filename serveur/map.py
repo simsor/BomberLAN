@@ -14,12 +14,13 @@ DROITE = "droite"
 
 
 def bombeCollide(sprite1, sprite2):
-    return sprite2.rect.collidepoint((sprite1.x, sprite1.y))
+    return sprite2.rect.collidepoint(sprite1.center)
 
 
 class Bombe(pygame.sprite.Sprite):
     def __init__(self, joueur, x, y):
         pygame.sprite.Sprite.__init__(self)
+        self.id = self.calcul_id(self)
         self.joueur = joueur
 
         self.image, self.rect = load_png(ASSET_BOMBE)
@@ -50,7 +51,8 @@ class Bombe(pygame.sprite.Sprite):
         self.time -= 1
         if self.time == 0:
             souffle = self.souffle(serveur.murs, serveur.caisses)
-            serveur.flammes.add(Flamme(self.rect.centerx, self.rect.centery))
+            flammes = []
+            flammes.append(Flamme(self.rect.centerx, self.rect.centery))
 
             for direction in souffle:
                 xAbs, yAbs = self.rect.center
@@ -63,13 +65,20 @@ class Bombe(pygame.sprite.Sprite):
                         yAbs += 32
                     elif direction == GAUCHE:
                         xAbs -= 32
-                    serveur.flammes.add(Flamme(xAbs, yAbs))
+
+                    flammes.append(Flamme(xAbs, yAbs))
+
+            serveur.flammes.add(flammes)
 
             for c in serveur.clients:
-                for flamme in serveur.flammes:
-                    c.Send({'action': 'flamme', 'flamme': flamme.rect.center})
-                c.Send({'action': 'bombe_remove', 'bombe': self.rect.center})
+                for flamme in flammes:
+                    c.Send({'action': 'flamme', 'flamme_center': flamme.rect.center, 'flamme_id': flamme.id})
+                c.Send({'action': 'bombe_remove', 'bombe_id': self.id})
             self.kill()
+
+    @staticmethod
+    def calcul_id(bombe):
+        return id(bombe)
 
 
 class Flamme(pygame.sprite.Sprite):
@@ -77,10 +86,11 @@ class Flamme(pygame.sprite.Sprite):
     Chaque flamme détruit une caisse ou une joueur
     """
 
-    def __init__(self, x, y):
+    def __init__(self, xAbs, yAbs):
         pygame.sprite.Sprite.__init__(self)
+        self.id = self.calcul_id(self)
         self.rect = load_png(ASSET_FLAME)[1]
-        self.rect.center = (x, y)
+        self.rect.center = (xAbs, yAbs)
 
         self.timer = BOMB_EXPLOSE_DELAY
 
@@ -89,29 +99,37 @@ class Flamme(pygame.sprite.Sprite):
         self.timer -= 1
         if self.timer == 0:
             for c in serveur.clients:
-                c.Send({'action': 'flamme_remove', 'flamme': self.rect.center})
+                c.Send({'action': 'flamme_remove', 'flamme_id': self.id})
             self.kill()
+
+    @staticmethod
+    def calcul_id(flamme):
+        return id(flamme)
 
 
 class Mur(pygame.sprite.Sprite):
     """ Représente un mur indestructible """
 
-    def __init__(self, x, y):
+    def __init__(self, xAbs, Abs):
         pygame.sprite.Sprite.__init__(self)
         self.rect = load_png(ASSET_MUR)[1]
-        self.rect.topleft = (x, y)
+        self.rect.topleft = (xAbs, Abs)
 
 
 class Caisse(pygame.sprite.Sprite):
     """ Représente une caisse destructible """
 
-    def __init__(self, x, y):
+    def __init__(self, xAbs, yAbs):
         pygame.sprite.Sprite.__init__(self)
+        self.id = self.calcul_id(self)
         self.rect = load_png(ASSET_CAISSE)[1]
-        self.rect.topleft = (x, y)
-
+        self.rect.topleft = (xAbs, yAbs)
 
     def update(self, flammes):
         if pygame.sprite.spritecollide(self, flammes, False):
             print "Une caisse a été détruite"
             self.kill()
+
+    @staticmethod
+    def calcul_id(caisse):
+        return id(caisse)

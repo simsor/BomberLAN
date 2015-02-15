@@ -5,6 +5,8 @@ import pygame
 
 from PodSixNet.Connection import connection, ConnectionListener
 
+from pprint import pprint
+
 from joueur import Joueur
 from map import Caisse, Mur, Bombe, Flamme
 
@@ -46,8 +48,8 @@ class GroupeMurs(pygame.sprite.Group, ConnectionListener):
 
     def Network_murs(self, data):
         self.empty()
-        for mur in data["murs"]:
-            self.add(Mur(mur[0], mur[1]))
+        for mur_center in data["murs_center"]:
+            self.add(Mur(mur_center))
 
 
 class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
@@ -58,8 +60,8 @@ class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
 
     def Network_caisses(self, data):
         self.empty()
-        for caisse in data["caisses"]:
-            self.add(Caisse(caisse[0], caisse[1]))
+        for caisse_center in data["caisses_center"]:
+            self.add(Caisse(caisse_center))
 
 
 class GroupeFlammes(pygame.sprite.Group, ConnectionListener):
@@ -69,14 +71,13 @@ class GroupeFlammes(pygame.sprite.Group, ConnectionListener):
         pygame.sprite.Group.__init__(self)
 
     def Network_flamme(self, data):
-        flamme = data['flamme']
-        self.add(Flamme(flamme[0], flamme[1]))
+        self.add(Flamme(data['flamme_id'], data['flamme_center']))
 
     def Network_flamme_remove(self, data):
-        self.flammeByCenter(data['flamme']).kill()
+        self.flammeById(data['flamme_id']).kill()
 
-    def flammeByCenter(self, center):
-        return [flamme for flamme in self if flamme.rect.center == center][0]
+    def flammeById(self, id):
+        return [f for f in self if f.id == id][0]
 
 
 class GroupeBombes(pygame.sprite.Group, ConnectionListener):
@@ -86,11 +87,10 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
         pygame.sprite.Group.__init__(self)
 
     def Network_bombe(self, data):
-        bombe = data['bombe']
-        self.add(Bombe(bombe[0], bombe[1]))
+        self.add(Bombe(data['bombe_id'], data['bombe_center']))
 
     def Network_bombe_remove(self, data):
-        self.bombeByCenter(data['bombe']).kill()
+        self.bombeById(data['bombe_id']).kill()
 
-    def bombeByCenter(self, center):
-        return [bombe for bombe in self if bombe.rect.center == center][0]
+    def bombeById(self, id):
+        return [b for b in self if b.id == id][0]

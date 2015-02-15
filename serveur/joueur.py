@@ -43,9 +43,9 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe, channels):
-        bomb_x = (32 * round(self.rect.centerx / 32)) + 16
-        bomb_y = (32 * round(self.rect.centery / 32)) + 16
-        bombe_center = (bomb_x, bomb_y)
+        bomb_centerx = (32 * round(self.rect.centerx / 32)) + 16
+        bomb_centery = (32 * round(self.rect.centery / 32)) + 16
+        bombe_center = (bomb_centerx, bomb_centery)
         for b in groupeBombe:
             if b.rect.center == bombe_center:
                 return  # Il y a déjà une bombe ici, on annule
@@ -53,9 +53,10 @@ class Joueur(pygame.sprite.Sprite):
             if b.joueur == self:
                 return  # Il a déjà posé une bombe
 
-        groupeBombe.add(Bombe(self, bombe_center[0], bombe_center[1]))
+        bombe = Bombe(self, bombe_center[0], bombe_center[1])
+        groupeBombe.add(bombe)
         for c in channels:
-            c.Send({'action': 'bombe', 'bombe': bombe_center})
+            c.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
 
     def update(self, serveur):
         ancienCentre = self.rect.center

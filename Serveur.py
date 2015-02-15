@@ -110,14 +110,14 @@ class MyServer(Server):
         channel.Send({"action": "numero", "numero": channel.numero})
 
         # On envoie les murs et les caisses
-        channel.Send({"action": "murs", "murs": self.centres_murs})
-        channel.Send({"action": "caisses", "caisses": self.centres_caisses})
+        channel.Send({"action": "murs", "murs_center": self.centres_murs})
+        channel.Send({"action": "caisses", "caisses_center": self.centres_caisses})
 
         # On envoie les bombes et les flammes
         for bombe in self.bombes:
-            channel.Send({'action': 'bombe', 'bombe': bombe.rect.center})
+            channel.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
         for flamme in self.flammes:
-            channel.Send({'action': 'flamme', 'flamme': flamme.rect.center})
+            channel.Send({'action': 'flamme', 'flamme_center': flamme.rect.center, 'flamme_id': flamme.id})
 
         # On envoie les autres joueurs connectés
         for c in self.clients:
@@ -138,7 +138,7 @@ class MyServer(Server):
         """ Envoie toutes les caisses à tous les clients """
         self.centres_caisses = [c.rect.center for c in self.caisses]
         for c in self.channels:
-            c.Send({'action': 'caisses', 'caisses': self.centres_caisses})
+            c.Send({'action': 'caisses', 'caisses_center': self.centres_caisses})
 
     def main_loop(self):
         """
