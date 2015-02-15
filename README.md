@@ -13,4 +13,4 @@ Un Bomberman fait avec Pygame et PodSixNet pour le réseau.
 
 ## Modèle choisi
 Le modèle utilisé est celui d'un client "bête". Le client envoie les touches au serveur, qui répond avec l'état de tous les objets.
-A chaque frame, le serveur envoie la liste des murs, des caisses, des joueurs, des bombes, des explosions.
+*a mettre à jour* : A chaque frame, le serveur envoie la liste des murs, des caisses, des joueurs, des bombes, des explosions.
