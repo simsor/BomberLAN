@@ -11,12 +11,12 @@ from map import Bombe
 
 
 class Joueur(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, xAbs, yAbs):
         pygame.sprite.Sprite.__init__(self)
 
         self.image, self.rect = load_png(ASSET_JOUEUR['BAS'])
-        self.rect.topleft = (x, y)
-        self.spawn = (x, y)
+        self.rect.topleft = (xAbs, yAbs)
+        self.spawn = (xAbs, yAbs)
         self.direction = "bas"
 
         self.speed = [0, 0]

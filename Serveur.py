@@ -3,6 +3,7 @@
 
 import pygame
 import sys
+from pprint import pprint
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
@@ -103,6 +104,12 @@ class MyServer(Server):
             print "Impossible de connecter le joueur, le serveur est plein (4 joueurs sont présents)"
             return
 
+        numeros = [c.numero for c in self.clients]
+        for i in range(4):
+            if not numeros.__contains__(i):
+                nb_player = i
+                break
+
         channel.numero = nb_player
         xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * 32
         ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * 32
@@ -127,11 +134,10 @@ class MyServer(Server):
         self.clients.append(channel)
 
     def del_client(self, channel):
-        numero = channel.numero
-        print "Client %d déconnecté" % (numero)
+        print "Client %d déconnecté" % (channel.numero)
         self.clients.remove(channel)
         for c in self.clients:
-            c.Send({"action": "joueur_disconnected", "numero": numero})
+            c.Send({"action": "joueur_disconnected", "numero": channel.numero})
 
 
     def update_caisses(self):
