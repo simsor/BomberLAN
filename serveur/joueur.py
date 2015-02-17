@@ -6,7 +6,6 @@ import pygame
 from functions import load_png
 from config import ASSET_JOUEUR
 from config import PLAYER_SPEED
-
 from map import Bombe
 
 
@@ -19,6 +18,7 @@ class Joueur(pygame.sprite.Sprite):
         self.spawn = (xAbs, yAbs)
         self.direction = "bas"
 
+        self.bombe_detection = True
         self.speed = [0, 0]
 
     def respawn(self):
@@ -55,6 +55,7 @@ class Joueur(pygame.sprite.Sprite):
 
         bombe = Bombe(self, bombe_center[0], bombe_center[1])
         groupeBombe.add(bombe)
+        self.bombe_detection = False
         for c in channels:
             c.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
 
@@ -63,11 +64,17 @@ class Joueur(pygame.sprite.Sprite):
         self.rect = self.rect.move(self.speed)
         collisions_murs = pygame.sprite.spritecollide(self, serveur.murs, False)
         collisions_caisses = pygame.sprite.spritecollide(self, serveur.caisses, False)
-        if collisions_murs or collisions_caisses:
+        collisions_bombes = pygame.sprite.spritecollide(self, serveur.bombes, False)
+
+        if collisions_murs or collisions_caisses or (self.bombe_detection and collisions_bombes):
             self.rect.center = ancienCentre
             # On arrondit la position pour qu'il soit aligné
             self.rect.x = 32 * round(self.rect.midtop[0] / 32)
             self.rect.y = 32 * round(self.rect.midright[1] / 32)
+
+        if not self.bombe_detection and not collisions_bombes:
+            self.bombe_detection = True
+
 
         if pygame.sprite.spritecollide(self, serveur.flammes, False, pygame.sprite.collide_rect_ratio(0.9)):
             print "Un joueur vient de mourir"
