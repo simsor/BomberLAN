@@ -20,6 +20,7 @@ class Joueur(pygame.sprite.Sprite):
 
         self.bombe_detection = True
         self.bombe_range = BOMB_RANGE
+        self.bombe_max_number = 1
         self.bombe_number = 1
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]
@@ -30,6 +31,7 @@ class Joueur(pygame.sprite.Sprite):
 
         self.bombe_detection = True
         self.bombe_range = BOMB_RANGE
+        self.bombe_max_number = 1
         self.bombe_number = 1
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]

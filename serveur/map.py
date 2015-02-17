@@ -77,7 +77,9 @@ class Bombe(pygame.sprite.Sprite):
                     c.Send({'action': 'flamme', 'flamme_center': flamme.rect.center, 'flamme_id': flamme.id})
                 c.Send({'action': 'bombe_remove', 'bombe_id': self.id})
 
-            self.joueur.bombe_number += 1
+            if self.joueur.bombe_number < self.joueur.bombe_max_number:
+                self.joueur.bombe_number += 1
+
             self.kill()
 
     @staticmethod
@@ -211,5 +213,6 @@ class PowerUpBombe(PowerUp):
         print "Un power_up de bombe vient d'apparaître"
 
     def effet(self, joueur):
+        joueur.bombe_max_number += 1
         joueur.bombe_number += 1
         print "J'augmente le nombre de bombes du joueur"
