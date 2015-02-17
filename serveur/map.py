@@ -2,10 +2,12 @@
 # coding: utf-8
 
 import pygame
+import random
 
 from functions import load_png
 from config import ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE, ASSET_FLAME
-from config import BOMB_DELAY, BOMB_RANGE, BOMB_EXPLOSE_DELAY
+from config import BOMB_DELAY, BOMB_EXPLOSE_DELAY
+
 
 HAUT = "haut"
 BAS = "bas"
@@ -20,7 +22,7 @@ def bombeCollide(sprite1, sprite2):
 class Bombe(pygame.sprite.Sprite):
     def __init__(self, joueur, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.id = self.calcul_id(self)
+        self.id = Bombe.calcul_id(self)
         self.joueur = joueur
 
         self.image, self.rect = load_png(ASSET_BOMBE)
@@ -30,10 +32,10 @@ class Bombe(pygame.sprite.Sprite):
     def souffle(self, murs, caisses):
         """ Explosion de la bombe : gère l'explosion """
         portee = {}
-        portee[HAUT] = self.calcul_souffle(BOMB_RANGE, self.rect, [0, -32], murs, caisses)
-        portee[DROITE] = self.calcul_souffle(BOMB_RANGE, self.rect, [32, 0], murs, caisses)
-        portee[BAS] = self.calcul_souffle(BOMB_RANGE, self.rect, [0, 32], murs, caisses)
-        portee[GAUCHE] = self.calcul_souffle(BOMB_RANGE, self.rect, [-32, 0], murs, caisses)
+        portee[HAUT] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [0, -32], murs, caisses)
+        portee[DROITE] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [32, 0], murs, caisses)
+        portee[BAS] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [0, 32], murs, caisses)
+        portee[GAUCHE] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [-32, 0], murs, caisses)
         return portee
 
     def calcul_souffle(self, portee, rect, speed, murs, caisses):
@@ -88,7 +90,7 @@ class Flamme(pygame.sprite.Sprite):
 
     def __init__(self, xAbs, yAbs):
         pygame.sprite.Sprite.__init__(self)
-        self.id = self.calcul_id(self)
+        self.id = Flamme.calcul_id(self)
         self.rect = load_png(ASSET_FLAME)[1]
         self.rect.center = (xAbs, yAbs)
 
@@ -121,15 +123,75 @@ class Caisse(pygame.sprite.Sprite):
 
     def __init__(self, xAbs, yAbs):
         pygame.sprite.Sprite.__init__(self)
-        self.id = self.calcul_id(self)
+        self.id = Caisse.calcul_id(self)
         self.rect = load_png(ASSET_CAISSE)[1]
         self.rect.topleft = (xAbs, yAbs)
 
-    def update(self, flammes):
-        if pygame.sprite.spritecollide(self, flammes, False):
+    def update(self, serveur):
+        if pygame.sprite.spritecollide(self, serveur.flammes, False):
             print "Une caisse a été détruite"
+
+            if random.randint(1, 10) <= 1:
+                if random.randint(1, 2) == 1:
+                    # create power_up_speed
+                    power = PowerUpSpeed(self.rect.x, self.rect.y)
+                else:
+                    # create power_up_flamme
+                    power = PowerUpFlamme(self.rect.x, self.rect.y)
+
+                for c in serveur.clients:
+                    c.Send({'action': 'powerUp', 'powerUp_type': power.type, 'powerUp_id': power.id,
+                            'powerUp_center': power.rect.center})
+
+                serveur.power_ups.add(power)
+
             self.kill()
+            serveur.update_caisses()
 
     @staticmethod
     def calcul_id(caisse):
         return id(caisse)
+
+
+class PowerUp(pygame.sprite.Sprite):
+    """ Représente un power up générique """
+
+    def __init__(self, type, xAbs, yAbs):
+        pygame.sprite.Sprite.__init__(self)
+        self.type = type
+        self.id = PowerUp.calcul_id(self)
+        self.rect = load_png(ASSET_CAISSE)[1]
+        self.rect.topleft = (xAbs, yAbs)
+
+    def die(self, channels):
+        for c in channels:
+            c.Send({'action': 'powerUp_remove', 'powerUp_id': self.id})
+        self.kill()
+
+    @staticmethod
+    def calcul_id(powerUp):
+        return id(powerUp)
+
+
+class PowerUpFlamme(PowerUp):
+    """ Représente le power up des flammes : agrandit la portée des bombes """
+
+    def __init__(self, xAbs, yAbs):
+        super(PowerUpFlamme, self).__init__("flamme", xAbs, yAbs)
+        print "Un power_up de flamme vient d'apparaître"
+
+    def effet(self, joueur):
+        joueur.bombe_range += 1
+        print "J'agrandi la portée des flammes"
+
+
+class PowerUpSpeed(PowerUp):
+    """ Représente le power up de la vitesse : augmente cette dernière """
+
+    def __init__(self, xAbs, yAbs):
+        super(PowerUpSpeed, self).__init__("speed", xAbs, yAbs)
+        print "Un power_up de vitesse vient d'apparaître"
+
+    def effet(self, joueur):
+        joueur.velocity += 1
+        print "J'accelère le joueur"

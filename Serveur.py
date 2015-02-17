@@ -3,7 +3,6 @@
 
 import pygame
 import sys
-from pprint import pprint
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
@@ -55,6 +54,7 @@ class MyServer(Server):
         self.caisses = pygame.sprite.Group()
         self.bombes = pygame.sprite.Group()
         self.flammes = pygame.sprite.Group()
+        self.power_ups = pygame.sprite.Group()
 
         print "Serveur en écoute sur le port %d" % (port)
 
@@ -125,6 +125,9 @@ class MyServer(Server):
             channel.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
         for flamme in self.flammes:
             channel.Send({'action': 'flamme', 'flamme_center': flamme.rect.center, 'flamme_id': flamme.id})
+        for powerUp in self.power_ups:
+            channel.Send({'action': 'powerUp', 'powerUp_type': powerUp.type, 'powerUp_center': powerUp.rect.center,
+                          'powerUp_id': powerUp.id})
 
         # On envoie les autres joueurs connectés
         for c in self.clients:
@@ -161,10 +164,7 @@ class MyServer(Server):
             self.flammes.update(self)
 
             # On update les caisses
-            nb_caisses = len(self.caisses)
-            self.caisses.update(self.flammes)
-            if nb_caisses != len(self.caisses):
-                self.update_caisses()
+            self.caisses.update(self)
 
             # On envoie toutes les données aux clients
             for c in self.clients:
