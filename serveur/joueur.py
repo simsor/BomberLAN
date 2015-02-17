@@ -20,6 +20,7 @@ class Joueur(pygame.sprite.Sprite):
 
         self.bombe_detection = True
         self.bombe_range = BOMB_RANGE
+        self.bombe_number = 1
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]
 
@@ -29,6 +30,7 @@ class Joueur(pygame.sprite.Sprite):
 
         self.bombe_detection = True
         self.bombe_range = BOMB_RANGE
+        self.bombe_number = 1
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]
 
@@ -49,19 +51,20 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "droite"
 
     def poseBombe(self, groupeBombe, channels):
+        if self.bombe_number <= 0:
+            return
+
         bomb_centerx = (32 * round(self.rect.centerx / 32)) + 16
         bomb_centery = (32 * round(self.rect.centery / 32)) + 16
-        bombe_center = (bomb_centerx, bomb_centery)
         for b in groupeBombe:
-            if b.rect.center == bombe_center:
+            if b.rect.center == (bomb_centerx, bomb_centery):
                 return  # Il y a déjà une bombe ici, on annule
 
-            if b.joueur == self:
-                return  # Il a déjà posé une bombe
-
-        bombe = Bombe(self, bombe_center[0], bombe_center[1])
-        groupeBombe.add(bombe)
+        self.bombe_number -= 1
         self.bombe_detection = False
+
+        bombe = Bombe(self, bomb_centerx, bomb_centery)
+        groupeBombe.add(bombe)
         for c in channels:
             c.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
 

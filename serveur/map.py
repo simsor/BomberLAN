@@ -76,6 +76,8 @@ class Bombe(pygame.sprite.Sprite):
                 for flamme in flammes:
                     c.Send({'action': 'flamme', 'flamme_center': flamme.rect.center, 'flamme_id': flamme.id})
                 c.Send({'action': 'bombe_remove', 'bombe_id': self.id})
+
+            self.joueur.bombe_number += 1
             self.kill()
 
     @staticmethod
@@ -132,12 +134,16 @@ class Caisse(pygame.sprite.Sprite):
             print "Une caisse a été détruite"
 
             if random.randint(1, 10) <= 1:
-                if random.randint(1, 2) == 1:
+                rand = random.randint(1, 3)
+                if rand == 1:
                     # create power_up_speed
                     power = PowerUpSpeed(self.rect.x, self.rect.y)
-                else:
+                elif rand == 2:
                     # create power_up_flamme
                     power = PowerUpFlamme(self.rect.x, self.rect.y)
+                else:
+                    # create power_up_bombe
+                    power = PowerUpBombe(self.rect.x, self.rect.y)
 
                 for c in serveur.clients:
                     c.Send({'action': 'powerUp', 'powerUp_type': power.type, 'powerUp_id': power.id,
@@ -195,3 +201,15 @@ class PowerUpSpeed(PowerUp):
     def effet(self, joueur):
         joueur.velocity += 1
         print "J'accelère le joueur"
+
+
+class PowerUpBombe(PowerUp):
+    """ Représente le power up de la bombe : augmente le nombre de bombe par personne """
+
+    def __init__(self, xAbs, yAbs):
+        super(PowerUpBombe, self).__init__("bombe", xAbs, yAbs)
+        print "Un power_up de bombe vient d'apparaître"
+
+    def effet(self, joueur):
+        joueur.bombe_number += 1
+        print "J'augmente le nombre de bombes du joueur"

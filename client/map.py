@@ -102,3 +102,10 @@ class PowerUpSpeed(PowerUp):
 
     def __init__(self, id, center):
         super(PowerUpSpeed, self).__init__("assets/power_up_speed.png", id, center)
+
+
+class PowerUpBombe(PowerUp):
+    """ Représente le power up de la bombe : augmente le nombre de bombe par personne """
+
+    def __init__(self, id, center):
+        super(PowerUpBombe, self).__init__("assets/power_up_bombe.png", id, center)
