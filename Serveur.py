@@ -14,7 +14,6 @@ from serveur.joueur import Joueur
 class ClientChannel(Channel):
     def __init__(self, *args, **kwargs):
         Channel.__init__(self, *args, **kwargs)
-        self.numero = 0
 
     def Close(self):
         self._server.del_client(self)
@@ -22,7 +21,7 @@ class ClientChannel(Channel):
     def update(self):
         self.joueur.update(self._server)
         for client in self._server.clients:
-            self.Send({"action": "joueur_position", "numero": client.numero, "centre": client.joueur.rect.center,
+            self.Send({"action": "joueur_position", "numero": client.joueur.numero, "centre": client.joueur.rect.center,
                        "direction": client.joueur.direction})
 
     def Network_keys(self, data):
@@ -92,7 +91,6 @@ class MyServer(Server):
 
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = [mur.rect.center for mur in self.murs]
-        self.centres_caisses = [caisse.rect.center for caisse in self.caisses]
 
         self.main_loop()
 
@@ -101,26 +99,27 @@ class MyServer(Server):
         nb_player = len(self.clients)
         if nb_player > 3:
             self.clients.remove(channel)
-            print "Impossible de connecter le joueur, le serveur est plein (4 joueurs sont présents)"
+            channel.Send({'action': 'error', 'error': 'impossible de se connecter : le serveur est plein'})
+            print "Impossible de connecter le joueur, le serveur est plein"
             return
 
-        numeros = [c.numero for c in self.clients]
+        numeros = [c.joueur.numero for c in self.clients]
         for i in range(4):
             if not numeros.__contains__(i):
                 nb_player = i
                 break
 
-        channel.numero = nb_player
         xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * 32
         ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * 32
-        channel.joueur = Joueur(xSpawn, ySpawn)
-        channel.Send({"action": "numero", "numero": channel.numero})
+        channel.joueur = Joueur(nb_player, xSpawn, ySpawn)
+        channel.Send({"action": "numero", "numero": channel.joueur.numero})
 
         # On envoie les murs et les caisses
         channel.Send({"action": "murs", "murs_center": self.centres_murs})
-        channel.Send({"action": "caisses", "caisses_center": self.centres_caisses})
 
-        # On envoie les bombes et les flammes
+        # On envoie les caisses, bombes, flammes et power-ups
+        for caisse in self.caisses:
+            channel.Send({'action': 'caisse', 'caisse_center': caisse.rect.center, 'caisse_id': caisse.id})
         for bombe in self.bombes:
             channel.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
         for flamme in self.flammes:
@@ -131,23 +130,24 @@ class MyServer(Server):
 
         # On envoie les autres joueurs connectés
         for c in self.clients:
-            c.Send({"action": "joueur", "numero": channel.numero})
-            channel.Send({"action": "joueur", "numero": c.numero})
+            c.Send({"action": "joueur", "numero": channel.joueur.numero})
+            channel.Send({"action": "joueur", "numero": c.joueur.numero})
 
         self.clients.append(channel)
 
     def del_client(self, channel):
-        print "Client %d déconnecté" % (channel.numero)
+        if not self.clients.__contains__(channel):
+            return
+
+        print "Client %d déconnecté" % (channel.joueur.numero)
         self.clients.remove(channel)
         for c in self.clients:
-            c.Send({"action": "joueur_disconnected", "numero": channel.numero})
+            c.Send({"action": "joueur_disconnected", "numero": channel.joueur.numero})
 
 
-    def update_caisses(self):
-        """ Envoie toutes les caisses à tous les clients """
-        self.centres_caisses = [c.rect.center for c in self.caisses]
-        for c in self.channels:
-            c.Send({'action': 'caisses', 'caisses_center': self.centres_caisses})
+    def channelByNumero(self, numero):
+        return [c for c in self.clients if c.joueur.numero == numero][0]
+
 
     def main_loop(self):
         """

@@ -72,10 +72,11 @@ class Mur(pygame.sprite.Sprite):
 class Caisse(pygame.sprite.Sprite):
     """ Représente une caisse destructible """
 
-    def __init__(self, center):
+    def __init__(self, id, center):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_CAISSE)
 
+        self.id = id
         self.rect.center = center
 
 

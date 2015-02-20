@@ -11,8 +11,9 @@ from map import Caisse, Mur, Bombe, Flamme, PowerUpFlamme, PowerUpSpeed, PowerUp
 
 class BomberlanClient(ConnectionListener):
     def __init__(self, ip, port, groupe_joueurs):
-        self.running = False
-        self.numero = 0  # Le numéro du joueur
+        self.running = False  # On ne lance le jeu que quand au moins 2 joueurs sont connectés
+        self.game_over = False
+        self.numero = -1  # Le numéro du joueur
         self.Connect((ip, port))
         self.groupe_joueurs = groupe_joueurs
 
@@ -30,8 +31,12 @@ class BomberlanClient(ConnectionListener):
     def Network_numero(self, data):
         self.numero = data["numero"]
         print "Je suis le client numéro %d" % (self.numero)
-        self.running = True  # On ne lance le jeu que quand on a un numéro
         self.groupe_joueurs.add(Joueur(self.numero))
+
+    def Network_game_over(self, data):
+        self.running = False
+        self.game_over = True
+        self.game_over_message = data['message']
 
     def Loop(self):
         connection.Pump()
@@ -56,10 +61,14 @@ class GroupeCaisses(pygame.sprite.Group, ConnectionListener):
     def __init__(self):
         pygame.sprite.Group.__init__(self)
 
-    def Network_caisses(self, data):
-        self.empty()
-        for caisse_center in data["caisses_center"]:
-            self.add(Caisse(caisse_center))
+    def Network_caisse(self, data):
+        self.add(Caisse(data['caisse_id'], data['caisse_center']))
+
+    def Network_caisse_remove(self, data):
+        self.caisseById(data['caisse_id']).kill()
+
+    def caisseById(self, id):
+        return [c for c in self if c.id == id][0]
 
 
 class GroupeFlammes(pygame.sprite.Group, ConnectionListener):

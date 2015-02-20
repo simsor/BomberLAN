@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import pygame
+import time
 import sys
 
 from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes, GroupeFlammes, GroupePowerUps
@@ -16,12 +17,16 @@ def main_function():
 
     ip = sys.argv[1]
     port = int(sys.argv[2])
+    time_delay = .0
 
     pygame.init()
 
     screen = pygame.display.set_mode((ARENA_WIDTH * 32, ARENA_HEIGHT * 32), pygame.RESIZABLE)
     enCours = True
     clock = pygame.time.Clock()
+
+    font = pygame.font.Font("assets/pixelmix.ttf", 20)
+    font_bold = pygame.font.Font("assets/pixelmix_bold.ttf", 25)
 
     joueurs = GroupeJoueurs()
     client = BomberlanClient(ip, port, joueurs)
@@ -37,43 +42,70 @@ def main_function():
             sol_center = (i * 32, j * 32)
             background.add(Sol(sol_center))
 
+
+    # Le jeu
     while enCours:
         clock.tick(60)
 
-        if client.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    enCours = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                enCours = False
+                break
 
-            touches = pygame.key.get_pressed()
-            client.Send({"action": "keys", "keys": touches})
+        joueurs.Pump()
+        murs.Pump()
+        caisses.Pump()
+        bombes.Pump()
+        flammes.Pump()
+        power_ups.Pump()
+        client.Loop()
 
-            joueurs.Pump()
-            murs.Pump()
-            caisses.Pump()
-            bombes.Pump()
-            flammes.Pump()
-            power_ups.Pump()
-            client.Loop()
+        flammes.update()
 
-            flammes.update()
+        screen.fill((255, 255, 255))
+        background.draw(screen)
 
-            screen.fill((255, 255, 255))
-            background.draw(screen)
+        for j in joueurs:
+            xAbs, yAbs = j.rect.midbottom
+            shadow = Shadow((xAbs, yAbs - 8))
+            screen.blit(shadow.image, shadow.rect)
 
-            for j in joueurs:
-                xAbs, yAbs = j.rect.midbottom
-                shadow = Shadow((xAbs, yAbs - 8))
-                screen.blit(shadow.image, shadow.rect)
+        murs.draw(screen)
+        caisses.draw(screen)
+        power_ups.draw(screen)
+        bombes.draw(screen)
+        joueurs.draw(screen)
+        flammes.draw(screen)
 
-            murs.draw(screen)
-            caisses.draw(screen)
-            power_ups.draw(screen)
-            bombes.draw(screen)
-            joueurs.draw(screen)
-            flammes.draw(screen)
+        if not client.game_over:
+            if client.running:
+                touches = pygame.key.get_pressed()
+                client.Send({"action": "keys", "keys": touches})
 
-            pygame.display.flip()
+            else:
+                if len(joueurs) > 1:
+                    display_message(screen, font, "GGOOOO !!!!", (220, 220, 220))
+                    client.running = True
+                    time_delay = 1.0
 
+                else:
+                    display_message(screen, font, "En attente du serveur..", (220, 220, 220))
+                    time_delay = .1
         else:
-            client.Loop()
+            display_message(screen, font_bold, client.game_over_message, (255, 100, 100))
+            time_delay = .1
+
+        pygame.display.flip()
+
+        time.sleep(time_delay)
+        time_delay = .01
+
+
+def display_message(screen, font, message, color):
+    disp_message = font.render(message, True, color)
+
+    disp_message_rect = disp_message.get_rect()
+    disp_message_rect.topleft = ((screen.get_rect().width - disp_message_rect.width) / 2,
+                                 (screen.get_rect().height - disp_message_rect.height) / 2)
+
+    screen.blit(disp_message, disp_message_rect)

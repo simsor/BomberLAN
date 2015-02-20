@@ -2,32 +2,39 @@
 # coding: utf-8
 
 import pygame
+import sys
 
 from functions import load_png
 from config import ASSET_JOUEUR
-from config import PLAYER_SPEED, BOMB_RANGE
+from config import PLAYER_SPEED, PLAYER_LIFE_MAX, BOMB_RANGE
 from map import Bombe
 
 
 class Joueur(pygame.sprite.Sprite):
-    def __init__(self, xAbs, yAbs):
+    def __init__(self, numero, xAbs, yAbs):
         pygame.sprite.Sprite.__init__(self)
+        self.numero = numero
 
         self.image, self.rect = load_png(ASSET_JOUEUR['BAS'])
         self.rect.topleft = (xAbs, yAbs)
-        self.spawn = (xAbs, yAbs)
         self.direction = "bas"
+
+        self.spawn = (xAbs, yAbs)
+        self.life_max = PLAYER_LIFE_MAX
+        self.life = PLAYER_LIFE_MAX
 
         self.bombe_detection = True
         self.bombe_range = BOMB_RANGE
         self.bombe_max_number = 1
         self.bombe_number = 1
+
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]
 
     def respawn(self):
         self.rect.topleft = self.spawn
         self.direction = "bas"
+        self.life -= 1
 
         self.bombe_detection = True
         self.bombe_range = BOMB_RANGE
@@ -35,6 +42,11 @@ class Joueur(pygame.sprite.Sprite):
         self.bombe_number = 1
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]
+
+    def die(self, serveur):
+        channel = serveur.channelByNumero(self.numero)
+        channel.Send({'action': 'game_over', 'message': 'vous avez perdu'})
+        serveur.del_client(channel)
 
     def up(self):
         self.speed[1] = -self.velocity
@@ -52,13 +64,13 @@ class Joueur(pygame.sprite.Sprite):
         self.speed[0] = self.velocity
         self.direction = "droite"
 
-    def poseBombe(self, groupeBombe, channels):
+    def poseBombe(self, groupeBombes, channels):
         if self.bombe_number <= 0:
             return
 
         bomb_centerx = (32 * round(self.rect.centerx / 32)) + 16
         bomb_centery = (32 * round(self.rect.centery / 32)) + 16
-        for b in groupeBombe:
+        for b in groupeBombes:
             if b.rect.center == (bomb_centerx, bomb_centery):
                 return  # Il y a déjà une bombe ici, on annule
 
@@ -66,14 +78,18 @@ class Joueur(pygame.sprite.Sprite):
         self.bombe_detection = False
 
         bombe = Bombe(self, bomb_centerx, bomb_centery)
-        groupeBombe.add(bombe)
+        groupeBombes.add(bombe)
         for c in channels:
             c.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
 
     def update(self, serveur):
+        if self.life <= 0:
+            print "Le joueur %d vient de mourir" % self.numero
+            self.die(serveur)
+            return
 
         if pygame.sprite.spritecollide(self, serveur.flammes, False, pygame.sprite.collide_rect_ratio(0.9)):
-            print "Un joueur vient de mourir"
+            print "Le joueur %d vient d'exploser (mais n'est pas mort, c'est un Chuck Norris)" % self.numero
             self.respawn()
 
         else:

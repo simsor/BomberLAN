@@ -4,6 +4,7 @@ SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 
 PLAYER_SPEED = 4
+PLAYER_LIFE_MAX = 3
 
 # La largeur et la hauteur devraient être des nombres impairs
 ARENA_WIDTH = 17
