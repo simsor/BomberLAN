@@ -37,6 +37,11 @@ ASSET_ANIMATE_FLAMES = {
     2: ASSET + "flame_3.png",
     3: ASSET + "flame_4.png"
 }
+ASSET_POWER_UP = {
+    'flamme': ASSET + "power_up_flamme.png",
+    'speed': ASSET + "power_up_speed.png",
+    'bombe': ASSET + "power_up_bombe.png"
+}
 ASSET_JOUEUR = {
     'BAS': ASSET + "joueur_bas.png",
     'HAUT': ASSET + "joueur_haut.png",

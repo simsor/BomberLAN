@@ -5,7 +5,7 @@ import pygame
 import random
 
 from functions import load_png
-from config import ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE, ASSET_FLAME
+from config import ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE, ASSET_FLAME, ASSET_POWER_UP
 from config import BOMB_DELAY, BOMB_EXPLOSE_DELAY
 
 
@@ -169,7 +169,7 @@ class PowerUp(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.type = type
         self.id = PowerUp.calcul_id(self)
-        self.rect = load_png(ASSET_CAISSE)[1]
+        self.rect = load_png(ASSET_POWER_UP[type])[1]
         self.rect.topleft = (xAbs, yAbs)
 
     def die(self, channels):

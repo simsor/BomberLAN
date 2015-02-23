@@ -166,6 +166,7 @@ class MyServer(Server):
         toplefts += [f.rect.topleft for f in self.flammes]
         toplefts += [p.rect.topleft for p in self.power_ups]
         toplefts += [c.joueur.rect.topleft for c in self.clients]
+        toplefts += [c.joueur.spawn for c in self.clients]
 
         possible_toplefts = []
 
