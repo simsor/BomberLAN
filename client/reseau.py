@@ -13,6 +13,7 @@ class BomberlanClient(ConnectionListener):
     def __init__(self, ip, port, groupe_joueurs):
         self.running = False  # On ne lance le jeu que quand au moins 2 joueurs sont connectés
         self.game_over = False
+        self.game_won = False
         self.numero = -1  # Le numéro du joueur
         self.Connect((ip, port))
         self.groupe_joueurs = groupe_joueurs
@@ -26,7 +27,6 @@ class BomberlanClient(ConnectionListener):
 
     def Network_disconnected(self, data):
         print 'Server disconnected'
-        sys.exit()
 
     def Network_numero(self, data):
         self.numero = data["numero"]
@@ -37,6 +37,11 @@ class BomberlanClient(ConnectionListener):
         self.running = False
         self.game_over = True
         self.game_over_message = data['message']
+
+    def Network_game_won(self, data):
+        self.running = False
+        self.game_won = True
+        self.game_won_message = data['message']
 
     def Loop(self):
         connection.Pump()

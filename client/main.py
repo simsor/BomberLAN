@@ -77,7 +77,7 @@ def main_function():
         joueurs.draw(screen)
         flammes.draw(screen)
 
-        if not client.game_over:
+        if not client.game_over and not client.game_won:
             if client.running:
                 touches = pygame.key.get_pressed()
                 client.Send({"action": "keys", "keys": touches})
@@ -91,14 +91,19 @@ def main_function():
                 else:
                     display_message(screen, font, "En attente du serveur..", (220, 220, 220))
                     time_delay = .1
-        else:
+
+        elif client.game_over:
             display_message(screen, font_bold, client.game_over_message, (255, 100, 100))
-            time_delay = .1
+            time_delay = .05
+
+        elif client.game_won:
+            display_message(screen, font_bold, client.game_won_message, (255, 100, 100))
+            time_delay = .05
 
         pygame.display.flip()
 
         time.sleep(time_delay)
-        time_delay = .01
+        time_delay = .001
 
 
 def display_message(screen, font, message, color):

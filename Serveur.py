@@ -2,11 +2,12 @@
 # coding: utf-8
 
 import pygame
+import random
 import sys
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
-from config import ARENA_HEIGHT, ARENA_WIDTH
+from config import ARENA_HEIGHT, ARENA_WIDTH, CAISSE_DELAY
 from serveur.map import Mur, Caisse
 from serveur.joueur import Joueur
 
@@ -95,12 +96,13 @@ class MyServer(Server):
         self.main_loop()
 
     def Connected(self, channel, addr):
-        print "Connexion de %s:%d" % (addr[0], addr[1])
+        print "Bonjour \"%s:%d\" !" % (addr[0], addr[1])
+
         nb_player = len(self.clients)
         if nb_player > 3:
             self.clients.remove(channel)
             channel.Send({'action': 'error', 'error': 'impossible de se connecter : le serveur est plein'})
-            print "Impossible de connecter le joueur, le serveur est plein"
+            print "Impossible de connecter \"%s:%d\", le serveur est plein" % (addr[0], addr[1])
             return
 
         numeros = [c.joueur.numero for c in self.clients]
@@ -145,17 +147,50 @@ class MyServer(Server):
             c.Send({"action": "joueur_disconnected", "numero": channel.joueur.numero})
 
 
+    def check_win(self):
+        if len(self.clients) == 1:
+            print "Victoire du joueur %d ! Bravo (il est très fort !)" % (self.clients[0].joueur.numero)
+            self.clients[0].Send({'action': 'game_won', 'message': 'V I C T O I R E  !!'})
+            print "FIN DU JEU - plus personne ne veut jouer :'("
+            self.running = False
+
+
     def channelByNumero(self, numero):
         return [c for c in self.clients if c.joueur.numero == numero][0]
 
 
+    def randomize_caisse(self):
+        toplefts = [m.rect.topleft for m in self.murs]
+        toplefts += [c.rect.topleft for c in self.caisses]
+        toplefts += [b.rect.topleft for b in self.bombes]
+        toplefts += [f.rect.topleft for f in self.flammes]
+        toplefts += [p.rect.topleft for p in self.power_ups]
+        toplefts += [c.joueur.rect.topleft for c in self.clients]
+
+        possible_toplefts = []
+
+        for i in range(ARENA_WIDTH):
+            for j in range(ARENA_HEIGHT):
+                topleft = (i * 32, j * 32)
+                if not toplefts.__contains__(topleft):
+                    possible_toplefts.append(topleft)
+
+        xAbs, yAbs = possible_toplefts[random.randint(0, len(possible_toplefts) - 1)]
+        caisse = Caisse(xAbs, yAbs)
+        for c in self.clients:
+            c.Send({'action': 'caisse', 'caisse_center': caisse.rect.center, 'caisse_id': caisse.id})
+
+        return caisse
+
+
     def main_loop(self):
         """
-        Boucle principale du serveur : gère l'envoie et la réception des données principalement
+        Boucle principale du serveur : boucle de jeu
         """
-        while True:
+        self.running = True
+        caisse_timer = CAISSE_DELAY
+        while self.running:
             self.clock.tick(60)
-            self.Pump()
 
             # On update les bombes
             self.bombes.update(self)
@@ -169,6 +204,13 @@ class MyServer(Server):
             # On envoie toutes les données aux clients
             for c in self.clients:
                 c.update()
+
+            caisse_timer -= 1
+            if caisse_timer == 0:
+                self.bombes.add(self.randomize_caisse())
+                caisse_timer = CAISSE_DELAY
+
+            self.Pump()
 
 
 if __name__ == "__main__":

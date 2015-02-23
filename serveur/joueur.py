@@ -47,6 +47,7 @@ class Joueur(pygame.sprite.Sprite):
         channel = serveur.channelByNumero(self.numero)
         channel.Send({'action': 'game_over', 'message': 'vous avez perdu'})
         serveur.del_client(channel)
+        serveur.check_win()
 
     def up(self):
         self.speed[1] = -self.velocity

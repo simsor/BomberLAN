@@ -10,6 +10,11 @@ PLAYER_LIFE_MAX = 3
 ARENA_WIDTH = 17
 ARENA_HEIGHT = 17
 
+# Config des caisses
+# Timer avant l'apparition d'une caisse (une vraie ..!)
+
+CAISSE_DELAY = 1000
+
 # Config de la bombe
 # Timer avant explosion en frame
 
