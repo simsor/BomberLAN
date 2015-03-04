@@ -83,8 +83,8 @@ def main_function():
                 client.Send({"action": "keys", "keys": touches})
 
             else:
-                if len(joueurs) > 1:
-                    display_message(screen, font, "GGOOOO !!!!", (220, 220, 220))
+                if client.game_start:
+                    display_message(screen, font, client.game_start_message, (220, 220, 220))
                     client.running = True
                     time_delay = 1.0
 
