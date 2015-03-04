@@ -10,6 +10,8 @@ from map import Caisse, Mur, Bombe, Flamme, PowerUpFlamme, PowerUpSpeed, PowerUp
 
 
 class BomberlanClient(ConnectionListener):
+    # Variable de classe représentant le numéro du joueur
+    
     def __init__(self, ip, port, groupe_joueurs):
         self.running = False  # On ne lance le jeu que quand au moins 2 joueurs sont connectés
         self.game_start = False
@@ -32,6 +34,7 @@ class BomberlanClient(ConnectionListener):
     def Network_numero(self, data):
         self.numero = data["numero"]
         print "Je suis le client numéro %d" % (self.numero)
+        Joueur.numeroJoueur = self.numero
         self.groupe_joueurs.add(Joueur(self.numero))
 
     def Network_game_start(self, data):

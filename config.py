@@ -48,4 +48,10 @@ ASSET_JOUEUR = {
     'DROITE': ASSET + "joueur_droite.png",
     'SHADOW': ASSET + "shadow.png"
 }
+ASSET_ENNEMI = {
+    'BAS': ASSET + "ennemi_bas.png",
+    'HAUT': ASSET + "ennemi_haut.png",
+    'DROITE': ASSET + "ennemi_droite.png",
+    'SHADOW': ASSET + "shadow.png"
+}
 ASSET_SOL = ASSET + "bg_1.png"
