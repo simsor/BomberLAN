@@ -7,7 +7,7 @@ import sys
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
-from config import ARENA_HEIGHT, ARENA_WIDTH, CAISSE_DELAY
+from config import ARENA_HEIGHT, ARENA_WIDTH, CAISSE_DELAY, CAISSE_NOMBRE_MINI
 from serveur.map import Mur, Caisse
 from serveur.joueur import Joueur
 
@@ -188,6 +188,8 @@ class MyServer(Server):
         """
         Boucle principale du serveur : boucle de jeu
         """
+        debut_pop_caisse = False
+        nb_caisses_explosees = 0
         self.running = True
         caisse_timer = CAISSE_DELAY
         while self.running:
@@ -200,16 +202,21 @@ class MyServer(Server):
             self.flammes.update(self)
 
             # On update les caisses
-            self.caisses.update(self)
+            self.caisses.update(self, nb_caisses_explosees)
 
             # On envoie toutes les données aux clients
             for c in self.clients:
                 c.update()
 
-            caisse_timer -= 1
-            if caisse_timer == 0:
-                self.bombes.add(self.randomize_caisse())
-                caisse_timer = CAISSE_DELAY
+
+            if debut_pop_caisse:
+                caisse_timer -= 1
+                if caisse_timer == 0:
+                    self.bombes.add(self.randomize_caisse())
+                    caisse_timer = CAISSE_DELAY
+            else:
+                if nb_caisses_explosees > CAISSE_NOMBRE_MINI:
+                    debut_pop_caisse = True
 
             self.Pump()
 
