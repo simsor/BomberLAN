@@ -5,20 +5,29 @@ import pygame
 from PodSixNet.Connection import ConnectionListener
 
 from functions import load_png
-from config import ASSET_JOUEUR
-
+from config import ASSET_JOUEUR, ASSET_ENNEMI
 
 class Joueur(pygame.sprite.Sprite):
     """ Classe "coquille vide" représentant un joueur """
+
+    numeroJoueur = -1
 
     def __init__(self, numero):
         pygame.sprite.Sprite.__init__(self)
         self.numero = numero
 
-        self.bas = load_png(ASSET_JOUEUR['BAS'])[0]
-        self.haut = load_png(ASSET_JOUEUR['HAUT'])[0]
-        self.droite = load_png(ASSET_JOUEUR['DROITE'])[0]
-        self.gauche = pygame.transform.flip(self.droite, True, False)
+        if numero == Joueur.numeroJoueur:
+            # Alors c'est nous
+            self.bas = load_png(ASSET_JOUEUR['BAS'])[0]
+            self.haut = load_png(ASSET_JOUEUR['HAUT'])[0]
+            self.droite = load_png(ASSET_JOUEUR['DROITE'])[0]
+            self.gauche = pygame.transform.flip(self.droite, True, False)
+        else:
+            # C'est un ennemi
+            self.bas = load_png(ASSET_ENNEMI['BAS'])[0]
+            self.haut = load_png(ASSET_ENNEMI['HAUT'])[0]
+            self.droite = load_png(ASSET_ENNEMI['DROITE'])[0]
+            self.gauche = pygame.transform.flip(self.droite, True, False)
 
         self.image, self.rect = self.bas, self.bas.get_rect()
 

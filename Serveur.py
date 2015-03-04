@@ -43,8 +43,10 @@ class MyServer(Server):
     channelClass = ClientChannel
 
     def __init__(self, *args, **kwargs):
-        Server.__init__(self, *args, **kwargs)
+        Server.__init__(self, localaddr=(ip, port))
         pygame.init()
+
+        self.nb_joueurs = nb_joueurs
 
         self.screen = pygame.display.set_mode((100, 100))
         self.clients = []
@@ -137,6 +139,10 @@ class MyServer(Server):
 
         self.clients.append(channel)
 
+        if len(self.clients) == self.nb_joueurs:
+            for c in self.clients:
+                c.Send({"action": "game_start", "message": "Gooooooooooo !!"})
+
     def del_client(self, channel):
         if not self.clients.__contains__(channel):
             return
@@ -212,21 +218,21 @@ class MyServer(Server):
             if debut_pop_caisse:
                 caisse_timer -= 1
                 if caisse_timer == 0:
-                    self.bombes.add(self.randomize_caisse())
+                    self.caisses.add(self.randomize_caisse())
                     caisse_timer = CAISSE_DELAY
             else:
                 if nb_caisses_explosees > CAISSE_NOMBRE_MINI:
                     debut_pop_caisse = True
-
             self.Pump()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print "Usage: %s ip port" % (sys.argv[0])
+    if len(sys.argv) != 4:
+        print "Usage: %s ip port nb_players" % (sys.argv[0])
         sys.exit(3)
 
     ip = sys.argv[1]
     port = int(sys.argv[2])
+    nb_joueurs = int(sys.argv[3])
 
-    my_server = MyServer(localaddr=(ip, port))
+    my_server = MyServer(localaddr=(ip, port), nb_joueurs=nb_joueurs)
