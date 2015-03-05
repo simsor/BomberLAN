@@ -131,7 +131,7 @@ class Caisse(pygame.sprite.Sprite):
         self.rect = load_png(ASSET_CAISSE)[1]
         self.rect.topleft = (xAbs, yAbs)
 
-    def update(self, serveur):
+    def update(self, serveur, nb_caisses_explosees):
         if pygame.sprite.spritecollide(self, serveur.flammes, False):
             print "Une caisse a été détruite"
 
@@ -155,7 +155,9 @@ class Caisse(pygame.sprite.Sprite):
 
             for c in serveur.clients:
                 c.Send({'action': 'caisse_remove', 'caisse_id': self.id})
+            nb_caisses_explosees += 1
             self.kill()
+
 
     @staticmethod
     def calcul_id(caisse):
