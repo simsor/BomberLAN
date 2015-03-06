@@ -195,7 +195,7 @@ class MyServer(Server):
         Boucle principale du serveur : boucle de jeu
         """
         debut_pop_caisse = False
-        nb_caisses_explosees = 0
+        self.nb_caisses_explosees = 0
         self.running = True
         caisse_timer = CAISSE_DELAY
         while self.running:
@@ -208,7 +208,7 @@ class MyServer(Server):
             self.flammes.update(self)
 
             # On update les caisses
-            self.caisses.update(self, nb_caisses_explosees)
+            self.caisses.update(self)
 
             # On envoie toutes les données aux clients
             for c in self.clients:
@@ -221,8 +221,9 @@ class MyServer(Server):
                     self.caisses.add(self.randomize_caisse())
                     caisse_timer = CAISSE_DELAY
             else:
-                if nb_caisses_explosees > CAISSE_NOMBRE_MINI:
+                if self.nb_caisses_explosees > CAISSE_NOMBRE_MINI:
                     debut_pop_caisse = True
+                    print("Nombre de caisses OK")
             self.Pump()
 
 
