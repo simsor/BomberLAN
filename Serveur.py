@@ -38,7 +38,6 @@ class ClientChannel(Channel):
         if touches[pygame.K_SPACE]:
             self.joueur.poseBombe(self._server.bombes, self._server.clients)
 
-
 class MyServer(Server):
     channelClass = ClientChannel
 
@@ -58,7 +57,8 @@ class MyServer(Server):
         self.flammes = pygame.sprite.Group()
         self.power_ups = pygame.sprite.Group()
 
-        print "Serveur en écoute sur le port %d" % (port)
+        print "Serveur en écoute sur le port %d" % port
+        print "En attente des %d joueurs .." % nb_joueurs
 
         # On crée une bordure de murs
         for i in range(0, ARENA_WIDTH):
@@ -152,7 +152,6 @@ class MyServer(Server):
         for c in self.clients:
             c.Send({"action": "joueur_disconnected", "numero": channel.joueur.numero})
 
-
     def check_win(self):
         if len(self.clients) == 1:
             print "Victoire du joueur %d ! Bravo (il est très fort !)" % (self.clients[0].joueur.numero)
@@ -194,9 +193,8 @@ class MyServer(Server):
         """
         Boucle principale du serveur : boucle de jeu
         """
-        debut_pop_caisse = False
-        nb_caisses_explosees = 0
         self.running = True
+        nb_caisses_explosees = 0
         caisse_timer = CAISSE_DELAY
         while self.running:
             self.clock.tick(60)
@@ -214,15 +212,11 @@ class MyServer(Server):
             for c in self.clients:
                 c.update()
 
-
-            if debut_pop_caisse:
+            if nb_caisses_explosees > CAISSE_NOMBRE_MINI:
                 caisse_timer -= 1
                 if caisse_timer == 0:
                     self.caisses.add(self.randomize_caisse())
                     caisse_timer = CAISSE_DELAY
-            else:
-                if nb_caisses_explosees > CAISSE_NOMBRE_MINI:
-                    debut_pop_caisse = True
             self.Pump()
 
 
