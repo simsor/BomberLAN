@@ -3,6 +3,7 @@
 
 import pygame
 import random
+import random
 import sys
 
 from PodSixNet.Channel import Channel
@@ -78,20 +79,26 @@ class MyServer(Server):
 
         # On crée les caisses : on rempli le centre, en ne laissant que les spawns de libres
         for i in range(3, ARENA_WIDTH - 3, 1):
-            self.caisses.add(Caisse(i * 32, 1 * 32))
-            self.caisses.add(Caisse(i * 32, (ARENA_HEIGHT - 2) * 32))
+            if random.randint(0, 1) <= .99:
+                self.caisses.add(Caisse(i * 32, 1 * 32))
+            if random.randint(0, 1) <= .99:
+                self.caisses.add(Caisse(i * 32, (ARENA_HEIGHT - 2) * 32))
 
         for i in range(3, ARENA_HEIGHT - 3, 1):
-            self.caisses.add(Caisse(1 * 32, i * 32))
-            self.caisses.add(Caisse((ARENA_WIDTH - 2) * 32, i * 32))
+            if random.randint(0, 1) <= .99:
+                self.caisses.add(Caisse(1 * 32, i * 32))
+            if random.randint(0, 1) <= .99:
+                self.caisses.add(Caisse((ARENA_WIDTH - 2) * 32, i * 32))
 
         for i in range(2, ARENA_HEIGHT - 2, 1):
             if i % 2 == 0:
                 for j in range(3, ARENA_WIDTH - 3, 2):
-                    self.caisses.add(Caisse(j * 32, i * 32))
+                    if random.randint(0, 1) <= .99:
+                        self.caisses.add(Caisse(j * 32, i * 32))
             else:
                 for j in range(2, ARENA_WIDTH - 2, 1):
-                    self.caisses.add(Caisse(j * 32, i * 32))
+                    if random.randint(0, 1) <= .99:
+                        self.caisses.add(Caisse(j * 32, i * 32))
 
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = [mur.rect.center for mur in self.murs]
