@@ -8,8 +8,8 @@ from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes, Gro
 from joueur import GroupeJoueurs
 from map import Sol, Shadow
 from functions import load_png
-from config import ARENA_HEIGHT, ARENA_WIDTH
-from config import ASSET_BOMBE, ASSET_LIFE
+from config import ARENA_HEIGHT, ARENA_WIDTH, PLAYER_LIFE_MAX
+from config import ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE
 
 SCREEN_COLOR = (0, 0, 0)
 PANEL_WIDTH = 100
@@ -142,6 +142,7 @@ def show_stat_panel(screen, joueurs, bombes):
 
     # Life definitions
     life_img, life_rect = load_png(ASSET_LIFE)
+    life_gone_img = load_png(ASSET_LIFE_GONE)[0]
     life_img_height = life_rect.height + 10
 
     # (width, height) center of the first card
@@ -151,11 +152,15 @@ def show_stat_panel(screen, joueurs, bombes):
     # Blit joueurs stats
     for joueur in joueurs:
         # Joueur's life blitting
-        img_width = (card_width / (joueur.life + 1))
+        img_width = (card_width / (PLAYER_LIFE_MAX + 1))
         life_rect.center = ((ARENA_WIDTH * 32 + img_width), h_center)
 
         for i in range(joueur.life):
             screen.blit(life_img, life_rect)
+            life_rect.centerx += img_width
+
+        for i in range(PLAYER_LIFE_MAX - joueur.life):
+            screen.blit(life_gone_img, life_rect)
             life_rect.centerx += img_width
 
         h_center += life_img_height

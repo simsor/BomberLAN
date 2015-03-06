@@ -57,3 +57,4 @@ ASSET_ENNEMI = {
 }
 ASSET_SOL = ASSET + "bg_1.png"
 ASSET_LIFE = ASSET + "life.png"
+ASSET_LIFE_GONE = ASSET + "life_gone.png"
