@@ -23,7 +23,7 @@ class ClientChannel(Channel):
         self.joueur.update(self._server)
         for client in self._server.clients:
             self.Send({"action": "joueur_position", "numero": client.joueur.numero, "centre": client.joueur.rect.center,
-                       "direction": client.joueur.direction})
+                       "direction": client.joueur.direction, 'life': client.joueur.life})
 
     def Network_keys(self, data):
         touches = data["keys"]
@@ -37,6 +37,7 @@ class ClientChannel(Channel):
             self.joueur.right()
         if touches[pygame.K_SPACE]:
             self.joueur.poseBombe(self._server.bombes, self._server.clients)
+
 
 class MyServer(Server):
     channelClass = ClientChannel
@@ -98,14 +99,14 @@ class MyServer(Server):
         self.main_loop()
 
     def Connected(self, channel, addr):
-        print "Bonjour \"%s:%d\" !" % (addr[0], addr[1])
-
         nb_player = len(self.clients)
-        if nb_player > 3:
-            self.clients.remove(channel)
+        if nb_player >= self.nb_joueurs:
             channel.Send({'action': 'error', 'error': 'impossible de se connecter : le serveur est plein'})
             print "Impossible de connecter \"%s:%d\", le serveur est plein" % (addr[0], addr[1])
+            print "Déconnection de \"%s:%d\"" % (addr[0], addr[1])
             return
+
+        print "Bonjour \"%s:%d\" !" % (addr[0], addr[1])
 
         numeros = [c.joueur.numero for c in self.clients]
         for i in range(4):
@@ -116,7 +117,7 @@ class MyServer(Server):
         xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * 32
         ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * 32
         channel.joueur = Joueur(nb_player, xSpawn, ySpawn)
-        channel.Send({"action": "numero", "numero": channel.joueur.numero})
+        channel.Send({"action": "numero", "numero": channel.joueur.numero, 'life': channel.joueur.life})
 
         # On envoie les murs et les caisses
         channel.Send({"action": "murs", "murs_center": self.centres_murs})
@@ -125,7 +126,8 @@ class MyServer(Server):
         for caisse in self.caisses:
             channel.Send({'action': 'caisse', 'caisse_center': caisse.rect.center, 'caisse_id': caisse.id})
         for bombe in self.bombes:
-            channel.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
+            channel.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id,
+                          'joueur_id': bombe.joueur.numero})
         for flamme in self.flammes:
             channel.Send({'action': 'flamme', 'flamme_center': flamme.rect.center, 'flamme_id': flamme.id})
         for powerUp in self.power_ups:
@@ -134,8 +136,8 @@ class MyServer(Server):
 
         # On envoie les autres joueurs connectés
         for c in self.clients:
-            c.Send({"action": "joueur", "numero": channel.joueur.numero})
-            channel.Send({"action": "joueur", "numero": c.joueur.numero})
+            c.Send({"action": "joueur", "numero": channel.joueur.numero, 'life': channel.joueur.life})
+            channel.Send({"action": "joueur", "numero": c.joueur.numero, 'life': channel.joueur.life})
 
         self.clients.append(channel)
 
@@ -194,8 +196,9 @@ class MyServer(Server):
         Boucle principale du serveur : boucle de jeu
         """
         self.running = True
-        nb_caisses_explosees = 0
+        self.nb_caisses_explosees = 0
         caisse_timer = CAISSE_DELAY
+
         while self.running:
             self.clock.tick(60)
 
@@ -206,17 +209,18 @@ class MyServer(Server):
             self.flammes.update(self)
 
             # On update les caisses
-            self.caisses.update(self, nb_caisses_explosees)
+            self.caisses.update(self)
 
             # On envoie toutes les données aux clients
             for c in self.clients:
                 c.update()
 
-            if nb_caisses_explosees > CAISSE_NOMBRE_MINI:
+            if self.nb_caisses_explosees > CAISSE_NOMBRE_MINI:
                 caisse_timer -= 1
                 if caisse_timer == 0:
                     self.caisses.add(self.randomize_caisse())
                     caisse_timer = CAISSE_DELAY
+
             self.Pump()
 
 
@@ -228,5 +232,9 @@ if __name__ == "__main__":
     ip = sys.argv[1]
     port = int(sys.argv[2])
     nb_joueurs = int(sys.argv[3])
+
+    if nb_joueurs > 4:
+        print "BomberLan se joue à 4 joueurs maximum"
+        sys.exit(2)
 
     my_server = MyServer(localaddr=(ip, port), nb_joueurs=nb_joueurs)

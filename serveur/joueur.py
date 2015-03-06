@@ -81,7 +81,8 @@ class Joueur(pygame.sprite.Sprite):
         bombe = Bombe(self, bomb_centerx, bomb_centery)
         groupeBombes.add(bombe)
         for c in channels:
-            c.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
+            c.Send(
+                {'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id, 'joueur_id': self.numero})
 
     def update(self, serveur):
         if self.life <= 0:

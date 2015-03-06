@@ -56,3 +56,4 @@ ASSET_ENNEMI = {
     'SHADOW': ASSET + "shadow.png"
 }
 ASSET_SOL = ASSET + "bg_1.png"
+ASSET_LIFE = ASSET + "life.png"

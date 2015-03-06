@@ -11,9 +11,10 @@ from config import ASSET_FLAME, ASSET_ANIMATE_FLAMES, BOMB_EXPLOSE_DELAY
 class Bombe(pygame.sprite.Sprite):
     """ Représente une bombe déposée par un joueur """
 
-    def __init__(self, id, center):
+    def __init__(self, id, center, joueur_id):
         pygame.sprite.Sprite.__init__(self)
         self.id = id
+        self.joueur_id = joueur_id
         self.image, self.rect = load_png(ASSET_BOMBE)
 
         self.rect.center = center
