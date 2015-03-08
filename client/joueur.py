@@ -12,9 +12,10 @@ class Joueur(pygame.sprite.Sprite):
 
     numeroJoueur = -1
 
-    def __init__(self, numero):
-        pygame.sprite.Sprite.__init__(self)
+    def __init__(self, numero, life):
+        pygame.sprite.Sprite.__init__(self),
         self.numero = numero
+        self.life = life
 
         if numero == Joueur.numeroJoueur:
             # Alors c'est nous
@@ -50,12 +51,13 @@ class GroupeJoueurs(pygame.sprite.Group, ConnectionListener):
 
     def Network_joueur_position(self, data):
         joueur = self.joueurByNumero(data["numero"])
+        joueur.life = data['life']
         joueur.rect.center = data['centre']
         joueur.updateDirection(data["direction"])
 
     def Network_joueur(self, data):
         print "Connection du joueur %d" % (data["numero"])
-        self.add(Joueur(data["numero"]))
+        self.add(Joueur(data["numero"], data['life']))
 
     def Network_joueur_disconnected(self, data):
         print "Deconnection du joueur %d" % (data["numero"])

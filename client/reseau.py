@@ -27,6 +27,7 @@ class BomberlanClient(ConnectionListener):
     def Network_error(self, data):
         print 'error:', data['error']
         connection.Close()
+        sys.exit(2)
 
     def Network_disconnected(self, data):
         print 'Server disconnected'
@@ -35,7 +36,7 @@ class BomberlanClient(ConnectionListener):
         self.numero = data["numero"]
         print "Je suis le client numéro %d" % (self.numero)
         Joueur.numeroJoueur = self.numero
-        self.groupe_joueurs.add(Joueur(self.numero))
+        self.groupe_joueurs.add(Joueur(self.numero, data['life']))
 
     def Network_game_start(self, data):
         self.game_start = True
@@ -107,7 +108,7 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
         pygame.sprite.Group.__init__(self)
 
     def Network_bombe(self, data):
-        self.add(Bombe(data['bombe_id'], data['bombe_center']))
+        self.add(Bombe(data['bombe_id'], data['bombe_center'], data['joueur_id']))
 
     def Network_bombe_remove(self, data):
         self.bombeById(data['bombe_id']).kill()

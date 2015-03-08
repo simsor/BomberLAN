@@ -155,7 +155,9 @@ class Caisse(pygame.sprite.Sprite):
 
             for c in serveur.clients:
                 c.Send({'action': 'caisse_remove', 'caisse_id': self.id})
+            serveur.nb_caisses_explosees += 1
             self.kill()
+
 
     @staticmethod
     def calcul_id(caisse):
