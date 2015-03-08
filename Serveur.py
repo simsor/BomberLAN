@@ -11,6 +11,7 @@ from PodSixNet.Server import Server
 from config import ARENA_HEIGHT, ARENA_WIDTH, CAISSE_DELAY, CAISSE_NOMBRE_MINI
 from serveur.map import Mur, Caisse
 from serveur.joueur import Joueur
+from pgu import gui
 
 
 class ClientChannel(Channel):
@@ -44,12 +45,12 @@ class MyServer(Server):
     channelClass = ClientChannel
 
     def __init__(self, *args, **kwargs):
-        Server.__init__(self, localaddr=(ip, port))
+        Server.__init__(self, localaddr=kwargs["localaddr"])
         pygame.init()
 
-        self.nb_joueurs = nb_joueurs
+        self.nb_joueurs = kwargs["nb_joueurs"]
 
-        self.screen = pygame.display.set_mode((100, 100))
+        self.screen = pygame.display.set_mode((48, 48))
         self.clients = []
         self.clock = pygame.time.Clock()
 
@@ -59,8 +60,12 @@ class MyServer(Server):
         self.flammes = pygame.sprite.Group()
         self.power_ups = pygame.sprite.Group()
 
-        print "Serveur en écoute sur le port %d" % port
-        print "En attente des %d joueurs .." % nb_joueurs
+        self.icon_wait = pygame.image.load("assets/wait.png")
+        self.icon_play = pygame.image.load("assets/bombe3.png")
+        self.etat = self.icon_wait
+
+        print "Serveur en écoute sur le port %d" % kwargs["localaddr"][1]
+        print "En attente des %d joueurs .." % self.nb_joueurs
 
         # On crée une bordure de murs
         for i in range(0, ARENA_WIDTH):
@@ -149,6 +154,7 @@ class MyServer(Server):
         self.clients.append(channel)
 
         if len(self.clients) == self.nb_joueurs:
+            self.etat = self.icon_play
             for c in self.clients:
                 c.Send({"action": "game_start", "message": "Gooooooooooo !!"})
 
@@ -230,18 +236,64 @@ class MyServer(Server):
 
             self.Pump()
 
+            self.screen.fill((255, 255, 255))
+            self.screen.blit(self.etat, (0, 0))
+
+            pygame.display.flip()
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print "Usage: %s ip port nb_players" % (sys.argv[0])
-        sys.exit(3)
 
-    ip = sys.argv[1]
-    port = int(sys.argv[2])
-    nb_joueurs = int(sys.argv[3])
+    app = gui.Desktop(theme=gui.Theme("data/themes/clean"))
+    app.connect(gui.QUIT, app.quit, None)
 
-    if nb_joueurs > 4:
-        print "BomberLan se joue à 4 joueurs maximum"
-        sys.exit(2)
+    table = gui.Table()
 
-    my_server = MyServer(localaddr=(ip, port), nb_joueurs=nb_joueurs)
+    # Titre
+    table.tr()
+    table.td(gui.Label("Config serveur"), colspan=4)
+
+    # IP du serveur
+    table.tr()
+    table.td(gui.Label("IP : "))
+
+    champ_ip = gui.Input(value="0.0.0.0", size=15)
+    table.td(champ_ip, colspan=3)
+
+    # Port d'écoute
+    table.tr()
+    table.td(gui.Label("Port : "))
+
+    champ_port = gui.Input(value="8888", size=5)
+    table.td(champ_port, colspan=3)
+
+    # Nombre de joueurs
+    table.tr()
+    table.td(gui.Label("Nombre joueurs :"))
+
+    slider_nb = gui.HSlider(value=4, min=2, max=4, size=5, width=150)
+    champ_nb = gui.Label("4")
+
+    def maj_nb(valeurs):
+        (champ, slider) = valeurs
+        champ.value = str(slider.value)
+        champ.repaint()
+
+    slider_nb.connect(gui.CHANGE, maj_nb, (champ_nb, slider_nb))
+
+    table.td(slider_nb, colspan=3)
+    table.tr()
+    table.td(champ_nb, colspan=4)
+
+    # Bouton GO
+    table.tr()
+    bouton_go = gui.Button(value="GO !")
+
+    def lancer_jeu(valeurs):
+        (ip, port, nb) = valeurs
+        MyServer(localaddr=(ip.value, int(port.value)), nb_joueurs=int(nb.value))
+
+    bouton_go.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port, champ_nb))
+    table.td(bouton_go)
+
+    app.run(table)
