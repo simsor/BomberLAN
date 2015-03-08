@@ -56,5 +56,7 @@ ASSET_ENNEMI = {
     'SHADOW': ASSET + "shadow.png"
 }
 ASSET_SOL = ASSET + "bg_1.png"
+ASSET_SPAWN_JOUEUR = ASSET + "spawn_joueur.png"
+ASSET_SPAWN_ENNEMI = ASSET + "spawn_ennemi.png"
 ASSET_LIFE = ASSET + "life.png"
 ASSET_LIFE_GONE = ASSET + "life_gone.png"

@@ -3,7 +3,8 @@
 import pygame
 
 from functions import load_png
-from config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR
+from joueur import Joueur
+from config import ASSET_BOMBE, ASSET_CAISSE, ASSET_MUR, ASSET_SPAWN_JOUEUR, ASSET_SPAWN_ENNEMI
 from config import ASSET_SOL, ASSET_JOUEUR, ASSET_POWER_UP
 from config import ASSET_FLAME, ASSET_ANIMATE_FLAMES, BOMB_EXPLOSE_DELAY
 
@@ -46,6 +47,19 @@ class Sol(pygame.sprite.Sprite):
     def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_png(ASSET_SOL)
+
+        self.rect.center = center
+
+
+class Spawn(pygame.sprite.Sprite):
+    """Représente un spawn d'un joueur"""
+
+    def __init__(self, numero_joueur, center):
+        pygame.sprite.Sprite.__init__(self)
+        if numero_joueur == Joueur.numeroJoueur:
+            self.image, self.rect = load_png(ASSET_SPAWN_JOUEUR)
+        else:
+            self.image, self.rect = load_png(ASSET_SPAWN_ENNEMI)
 
         self.rect.center = center
 

@@ -128,10 +128,12 @@ class MyServer(Server):
 
         xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * 32
         ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * 32
-        channel.joueur = Joueur(nb_player, xSpawn, ySpawn)
+        channel.joueur = Joueur(nb_player, (xSpawn, ySpawn))
         channel.Send({"action": "numero", "numero": channel.joueur.numero, 'life': channel.joueur.life})
+        channel.Send(
+            {"action": "spawn", "numero_joueur": channel.joueur.numero, "spawn_center": channel.joueur.spawn.center})
 
-        # On envoie les murs et les caisses
+        # On envoie les murs
         channel.Send({"action": "murs", "murs_center": self.centres_murs})
 
         # On envoie les caisses, bombes, flammes et power-ups
@@ -146,10 +148,13 @@ class MyServer(Server):
             channel.Send({'action': 'powerUp', 'powerUp_type': powerUp.type, 'powerUp_center': powerUp.rect.center,
                           'powerUp_id': powerUp.id})
 
-        # On envoie les autres joueurs connectés
+        # On envoie les autres joueurs connectés avec leur spawn
         for c in self.clients:
             c.Send({"action": "joueur", "numero": channel.joueur.numero, 'life': channel.joueur.life})
-            channel.Send({"action": "joueur", "numero": c.joueur.numero, 'life': channel.joueur.life})
+            channel.Send({"action": "joueur", "numero": c.joueur.numero, 'life': c.joueur.life})
+            c.Send({"action": "spawn", "numero_joueur": channel.joueur.numero,
+                    "spawn_center": channel.joueur.spawn.center})
+            channel.Send({"action": "spawn", "numero_joueur": c.joueur.numero, "spawn_center": c.joueur.spawn.center})
 
         self.clients.append(channel)
 
@@ -167,11 +172,15 @@ class MyServer(Server):
         for c in self.clients:
             c.Send({"action": "joueur_disconnected", "numero": channel.joueur.numero})
 
+        if len(self.clients) == 0:
+            print "LE SERVEUR SE CASSE - plus personne ne veut jouer :'("
+            sys.exit(0)
+
     def check_win(self):
         if len(self.clients) == 1:
             print "Victoire du joueur %d ! Bravo (il est très fort !)" % (self.clients[0].joueur.numero)
             self.clients[0].Send({'action': 'game_won', 'message': 'V I C T O I R E  !!'})
-            print "FIN DU JEU - plus personne ne veut jouer :'("
+            print "FIN DU JEU - à la prochaine :)"
             self.running = False
 
 
@@ -186,7 +195,7 @@ class MyServer(Server):
         toplefts += [f.rect.topleft for f in self.flammes]
         toplefts += [p.rect.topleft for p in self.power_ups]
         toplefts += [c.joueur.rect.topleft for c in self.clients]
-        toplefts += [c.joueur.spawn for c in self.clients]
+        toplefts += [c.joueur.spawn.topleft for c in self.clients]
 
         possible_toplefts = []
 
@@ -243,7 +252,6 @@ class MyServer(Server):
 
 
 if __name__ == "__main__":
-
     app = gui.Desktop(theme=gui.Theme("data/themes/clean"))
     app.connect(gui.QUIT, app.quit, None)
 

@@ -4,7 +4,7 @@ import pygame
 import time
 import sys
 
-from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes, GroupeFlammes, GroupePowerUps
+from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes, GroupeFlammes, GroupePowerUps, GroupeSpawns
 from joueur import GroupeJoueurs
 from map import Sol, Shadow
 from functions import load_png
@@ -37,6 +37,7 @@ def main_function():
     client = BomberlanClient(ip, port, joueurs)
     murs = GroupeMurs()
     caisses = GroupeCaisses()
+    spawns = GroupeSpawns()
     bombes = GroupeBombes()
     flammes = GroupeFlammes()
     power_ups = GroupePowerUps()
@@ -60,6 +61,7 @@ def main_function():
         joueurs.Pump()
         murs.Pump()
         caisses.Pump()
+        spawns.Pump()
         bombes.Pump()
         flammes.Pump()
         power_ups.Pump()
@@ -77,6 +79,7 @@ def main_function():
 
         murs.draw(screen)
         caisses.draw(screen)
+        spawns.draw(screen)
         power_ups.draw(screen)
         bombes.draw(screen)
         joueurs.draw(screen)
