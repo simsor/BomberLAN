@@ -9,7 +9,7 @@ def load_png(name):
     fullname = os.path.join('.', name)
     try:
         image = pygame.image.load(fullname)
-        if image.get_alpha is None:
+        if image.get_alpha() is None:
             image = image.convert()
         else:
             image = image.convert_alpha()

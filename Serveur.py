@@ -3,6 +3,7 @@
 
 import pygame
 import random
+import random
 import sys
 
 from PodSixNet.Channel import Channel
@@ -10,6 +11,7 @@ from PodSixNet.Server import Server
 from config import ARENA_HEIGHT, ARENA_WIDTH, CAISSE_DELAY, CAISSE_NOMBRE_MINI
 from serveur.map import Mur, Caisse
 from serveur.joueur import Joueur
+from pgu import gui
 
 
 class ClientChannel(Channel):
@@ -22,8 +24,12 @@ class ClientChannel(Channel):
     def update(self):
         self.joueur.update(self._server)
         for client in self._server.clients:
-            self.Send({"action": "joueur_position", "numero": client.joueur.numero, "centre": client.joueur.rect.center,
-                       "direction": client.joueur.direction})
+            self.Send({"action": "joueur_position",
+                       "numero": client.joueur.numero,
+                       "centre": client.joueur.rect.center,
+                       "direction": client.joueur.direction,
+                       "bouclier": client.joueur.bouclier,
+                       'life': client.joueur.life})
 
     def Network_keys(self, data):
         touches = data["keys"]
@@ -43,12 +49,12 @@ class MyServer(Server):
     channelClass = ClientChannel
 
     def __init__(self, *args, **kwargs):
-        Server.__init__(self, localaddr=(ip, port))
+        Server.__init__(self, localaddr=kwargs["localaddr"])
         pygame.init()
 
-        self.nb_joueurs = nb_joueurs
+        self.nb_joueurs = kwargs["nb_joueurs"]
 
-        self.screen = pygame.display.set_mode((100, 100))
+        self.screen = pygame.display.set_mode((48, 48))
         self.clients = []
         self.clock = pygame.time.Clock()
 
@@ -58,7 +64,12 @@ class MyServer(Server):
         self.flammes = pygame.sprite.Group()
         self.power_ups = pygame.sprite.Group()
 
-        print "Serveur en écoute sur le port %d" % (port)
+        self.icon_wait = pygame.image.load("assets/wait.png")
+        self.icon_play = pygame.image.load("assets/bombe3.png")
+        self.etat = self.icon_wait
+
+        print "Serveur en écoute sur le port %d" % kwargs["localaddr"][1]
+        print "En attente des %d joueurs .." % self.nb_joueurs
 
         # On crée une bordure de murs
         for i in range(0, ARENA_WIDTH):
@@ -77,20 +88,26 @@ class MyServer(Server):
 
         # On crée les caisses : on rempli le centre, en ne laissant que les spawns de libres
         for i in range(3, ARENA_WIDTH - 3, 1):
-            self.caisses.add(Caisse(i * 32, 1 * 32))
-            self.caisses.add(Caisse(i * 32, (ARENA_HEIGHT - 2) * 32))
+            if random.randint(0, 100) <= 62:
+                self.caisses.add(Caisse(i * 32, 1 * 32))
+            if random.randint(0, 100) <= 62:
+                self.caisses.add(Caisse(i * 32, (ARENA_HEIGHT - 2) * 32))
 
         for i in range(3, ARENA_HEIGHT - 3, 1):
-            self.caisses.add(Caisse(1 * 32, i * 32))
-            self.caisses.add(Caisse((ARENA_WIDTH - 2) * 32, i * 32))
+            if random.randint(0, 100) <= 62:
+                self.caisses.add(Caisse(1 * 32, i * 32))
+            if random.randint(0, 100) <= 62:
+                self.caisses.add(Caisse((ARENA_WIDTH - 2) * 32, i * 32))
 
         for i in range(2, ARENA_HEIGHT - 2, 1):
             if i % 2 == 0:
                 for j in range(3, ARENA_WIDTH - 3, 2):
-                    self.caisses.add(Caisse(j * 32, i * 32))
+                    if random.randint(0, 100) <= 62:
+                        self.caisses.add(Caisse(j * 32, i * 32))
             else:
                 for j in range(2, ARENA_WIDTH - 2, 1):
-                    self.caisses.add(Caisse(j * 32, i * 32))
+                    if random.randint(0, 100) <= 62:
+                        self.caisses.add(Caisse(j * 32, i * 32))
 
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = [mur.rect.center for mur in self.murs]
@@ -98,14 +115,14 @@ class MyServer(Server):
         self.main_loop()
 
     def Connected(self, channel, addr):
-        print "Bonjour \"%s:%d\" !" % (addr[0], addr[1])
-
         nb_player = len(self.clients)
-        if nb_player > 3:
-            self.clients.remove(channel)
+        if nb_player >= self.nb_joueurs:
             channel.Send({'action': 'error', 'error': 'impossible de se connecter : le serveur est plein'})
             print "Impossible de connecter \"%s:%d\", le serveur est plein" % (addr[0], addr[1])
+            print "Déconnection de \"%s:%d\"" % (addr[0], addr[1])
             return
+
+        print "Bonjour \"%s:%d\" !" % (addr[0], addr[1])
 
         numeros = [c.joueur.numero for c in self.clients]
         for i in range(4):
@@ -115,31 +132,38 @@ class MyServer(Server):
 
         xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * 32
         ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * 32
-        channel.joueur = Joueur(nb_player, xSpawn, ySpawn)
-        channel.Send({"action": "numero", "numero": channel.joueur.numero})
+        channel.joueur = Joueur(nb_player, (xSpawn, ySpawn))
+        channel.Send({"action": "numero", "numero": channel.joueur.numero, 'life': channel.joueur.life})
+        channel.Send(
+            {"action": "spawn", "numero_joueur": channel.joueur.numero, "spawn_center": channel.joueur.spawn.center})
 
-        # On envoie les murs et les caisses
+        # On envoie les murs
         channel.Send({"action": "murs", "murs_center": self.centres_murs})
 
         # On envoie les caisses, bombes, flammes et power-ups
         for caisse in self.caisses:
             channel.Send({'action': 'caisse', 'caisse_center': caisse.rect.center, 'caisse_id': caisse.id})
         for bombe in self.bombes:
-            channel.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
+            channel.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id,
+                          'joueur_id': bombe.joueur.numero})
         for flamme in self.flammes:
             channel.Send({'action': 'flamme', 'flamme_center': flamme.rect.center, 'flamme_id': flamme.id})
         for powerUp in self.power_ups:
             channel.Send({'action': 'powerUp', 'powerUp_type': powerUp.type, 'powerUp_center': powerUp.rect.center,
                           'powerUp_id': powerUp.id})
 
-        # On envoie les autres joueurs connectés
+        # On envoie les autres joueurs connectés avec leur spawn
         for c in self.clients:
-            c.Send({"action": "joueur", "numero": channel.joueur.numero})
-            channel.Send({"action": "joueur", "numero": c.joueur.numero})
+            c.Send({"action": "joueur", "numero": channel.joueur.numero, 'life': channel.joueur.life})
+            channel.Send({"action": "joueur", "numero": c.joueur.numero, 'life': c.joueur.life})
+            c.Send({"action": "spawn", "numero_joueur": channel.joueur.numero,
+                    "spawn_center": channel.joueur.spawn.center})
+            channel.Send({"action": "spawn", "numero_joueur": c.joueur.numero, "spawn_center": c.joueur.spawn.center})
 
         self.clients.append(channel)
 
         if len(self.clients) == self.nb_joueurs:
+            self.etat = self.icon_play
             for c in self.clients:
                 c.Send({"action": "game_start", "message": "Gooooooooooo !!"})
 
@@ -152,12 +176,15 @@ class MyServer(Server):
         for c in self.clients:
             c.Send({"action": "joueur_disconnected", "numero": channel.joueur.numero})
 
+        if len(self.clients) == 0:
+            print "LE SERVEUR SE CASSE - plus personne ne veut jouer :'("
+            sys.exit(0)
 
     def check_win(self):
         if len(self.clients) == 1:
             print "Victoire du joueur %d ! Bravo (il est très fort !)" % (self.clients[0].joueur.numero)
             self.clients[0].Send({'action': 'game_won', 'message': 'V I C T O I R E  !!'})
-            print "FIN DU JEU - plus personne ne veut jouer :'("
+            print "FIN DU JEU - à la prochaine :)"
             self.running = False
 
 
@@ -172,7 +199,7 @@ class MyServer(Server):
         toplefts += [f.rect.topleft for f in self.flammes]
         toplefts += [p.rect.topleft for p in self.power_ups]
         toplefts += [c.joueur.rect.topleft for c in self.clients]
-        toplefts += [c.joueur.spawn for c in self.clients]
+        toplefts += [c.joueur.spawn.topleft for c in self.clients]
 
         possible_toplefts = []
 
@@ -194,10 +221,10 @@ class MyServer(Server):
         """
         Boucle principale du serveur : boucle de jeu
         """
-        debut_pop_caisse = False
-        nb_caisses_explosees = 0
         self.running = True
+        self.nb_caisses_explosees = 0
         caisse_timer = CAISSE_DELAY
+
         while self.running:
             self.clock.tick(60)
 
@@ -208,31 +235,77 @@ class MyServer(Server):
             self.flammes.update(self)
 
             # On update les caisses
-            self.caisses.update(self, nb_caisses_explosees)
+            self.caisses.update(self)
 
             # On envoie toutes les données aux clients
             for c in self.clients:
                 c.update()
 
-
-            if debut_pop_caisse:
+            if self.nb_caisses_explosees > CAISSE_NOMBRE_MINI:
                 caisse_timer -= 1
                 if caisse_timer == 0:
                     self.caisses.add(self.randomize_caisse())
                     caisse_timer = CAISSE_DELAY
-            else:
-                if nb_caisses_explosees > CAISSE_NOMBRE_MINI:
-                    debut_pop_caisse = True
+
             self.Pump()
+
+            self.screen.fill((255, 255, 255))
+            self.screen.blit(self.etat, (0, 0))
+
+            pygame.display.flip()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print "Usage: %s ip port nb_players" % (sys.argv[0])
-        sys.exit(3)
+    app = gui.Desktop(theme=gui.Theme("data/themes/clean"))
+    app.connect(gui.QUIT, app.quit, None)
 
-    ip = sys.argv[1]
-    port = int(sys.argv[2])
-    nb_joueurs = int(sys.argv[3])
+    table = gui.Table()
 
-    my_server = MyServer(localaddr=(ip, port), nb_joueurs=nb_joueurs)
+    # Titre
+    table.tr()
+    table.td(gui.Label("Config serveur"), colspan=4)
+
+    # IP du serveur
+    table.tr()
+    table.td(gui.Label("IP : "))
+
+    champ_ip = gui.Input(value="0.0.0.0", size=15)
+    table.td(champ_ip, colspan=3)
+
+    # Port d'écoute
+    table.tr()
+    table.td(gui.Label("Port : "))
+
+    champ_port = gui.Input(value="8888", size=5)
+    table.td(champ_port, colspan=3)
+
+    # Nombre de joueurs
+    table.tr()
+    table.td(gui.Label("Nombre joueurs :"))
+
+    slider_nb = gui.HSlider(value=4, min=2, max=4, size=5, width=150)
+    champ_nb = gui.Label("4")
+
+    def maj_nb(valeurs):
+        (champ, slider) = valeurs
+        champ.value = str(slider.value)
+        champ.repaint()
+
+    slider_nb.connect(gui.CHANGE, maj_nb, (champ_nb, slider_nb))
+
+    table.td(slider_nb, colspan=3)
+    table.tr()
+    table.td(champ_nb, colspan=4)
+
+    # Bouton GO
+    table.tr()
+    bouton_go = gui.Button(value="GO !")
+
+    def lancer_jeu(valeurs):
+        (ip, port, nb) = valeurs
+        MyServer(localaddr=(ip.value, int(port.value)), nb_joueurs=int(nb.value))
+
+    bouton_go.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port, champ_nb))
+    table.td(bouton_go)
+
+    app.run(table)

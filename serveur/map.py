@@ -131,7 +131,7 @@ class Caisse(pygame.sprite.Sprite):
         self.rect = load_png(ASSET_CAISSE)[1]
         self.rect.topleft = (xAbs, yAbs)
 
-    def update(self, serveur, nb_caisses_explosees):
+    def update(self, serveur):
         if pygame.sprite.spritecollide(self, serveur.flammes, False):
             print "Une caisse a été détruite"
 
@@ -143,6 +143,9 @@ class Caisse(pygame.sprite.Sprite):
                 elif rand == 2:
                     # create power_up_flamme
                     power = PowerUpFlamme(self.rect.x, self.rect.y)
+                elif rand == 3:
+                    # create power_up_shield
+                    power = PowerUpShield(self.rect.x, self.rect.y)
                 else:
                     # create power_up_bombe
                     power = PowerUpBombe(self.rect.x, self.rect.y)
@@ -155,7 +158,7 @@ class Caisse(pygame.sprite.Sprite):
 
             for c in serveur.clients:
                 c.Send({'action': 'caisse_remove', 'caisse_id': self.id})
-            nb_caisses_explosees += 1
+            serveur.nb_caisses_explosees += 1
             self.kill()
 
 
@@ -219,3 +222,14 @@ class PowerUpBombe(PowerUp):
         joueur.bombe_max_number += 1
         joueur.bombe_number += 1
         print "J'augmente le nombre de bombes du joueur"
+
+class PowerUpShield(PowerUp):
+    """ Représente le power up bouclier : protège d'une explosion """
+
+    def __init__(self, xAbs, yAbs):
+        super(PowerUpShield, self).__init__("shield", xAbs, yAbs)
+        print "Un power_up de bouclier vient d'apparaître"
+
+    def effet(self, joueur):
+        joueur.bouclier = True
+        print "Pickup shield !"

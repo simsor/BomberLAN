@@ -11,15 +11,16 @@ from map import Bombe
 
 
 class Joueur(pygame.sprite.Sprite):
-    def __init__(self, numero, xAbs, yAbs):
+    def __init__(self, numero, spawn_topleft):
         pygame.sprite.Sprite.__init__(self)
         self.numero = numero
 
         self.image, self.rect = load_png(ASSET_JOUEUR['BAS'])
-        self.rect.topleft = (xAbs, yAbs)
+        self.rect.topleft = spawn_topleft
         self.direction = "bas"
 
-        self.spawn = (xAbs, yAbs)
+        self.is_at_spawn = False
+        self.spawn = pygame.Rect(spawn_topleft, (32, 32))
         self.life_max = PLAYER_LIFE_MAX
         self.life = PLAYER_LIFE_MAX
 
@@ -31,8 +32,11 @@ class Joueur(pygame.sprite.Sprite):
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]
 
+        self.bouclier = False
+        self.bouclierEnDestruction = False
+
     def respawn(self):
-        self.rect.topleft = self.spawn
+        self.rect.topleft = self.spawn.topleft
         self.direction = "bas"
         self.life -= 1
 
@@ -81,7 +85,8 @@ class Joueur(pygame.sprite.Sprite):
         bombe = Bombe(self, bomb_centerx, bomb_centery)
         groupeBombes.add(bombe)
         for c in channels:
-            c.Send({'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id})
+            c.Send(
+                {'action': 'bombe', 'bombe_center': bombe.rect.center, 'bombe_id': bombe.id, 'joueur_id': self.numero})
 
     def update(self, serveur):
         if self.life <= 0:
@@ -89,9 +94,15 @@ class Joueur(pygame.sprite.Sprite):
             self.die(serveur)
             return
 
-        if pygame.sprite.spritecollide(self, serveur.flammes, False, pygame.sprite.collide_rect_ratio(0.9)):
-            print "Le joueur %d vient d'exploser (mais n'est pas mort, c'est un Chuck Norris)" % self.numero
-            self.respawn()
+        collision_flammes = pygame.sprite.spritecollide(self, serveur.flammes, False,
+                                                        pygame.sprite.collide_rect_ratio(0.9))
+        shieldState = self.checkShield(serveur.flammes, collision_flammes)
+        
+        if not self.isAtSpawn() and collision_flammes:
+            if shieldState:
+                if self.life > 1:
+                    print "Le joueur %d vient d'exploser (mais n'est pas mort, c'est un Chuck Norris)" % self.numero
+                self.respawn()
 
         else:
             ancienCentre = self.rect.center
@@ -116,3 +127,30 @@ class Joueur(pygame.sprite.Sprite):
                     power_up.die(serveur.clients)
 
         self.speed = [0, 0]
+
+
+    def isAtSpawn(self):
+        if self.spawn.topleft == self.rect.topleft:
+            self.is_at_spawn = True
+
+        elif self.is_at_spawn:
+            if not self.rect.colliderect(self.spawn):
+                self.is_at_spawn = False
+
+        return self.is_at_spawn
+
+    def checkShield(self, flammes, coll):
+        if not self.bouclier:
+            return True
+        
+        if self.bouclier and coll:
+            self.bouclierEnDestruction = True
+            print "bouclier en train de fondre"
+            return False
+
+        if self.bouclierEnDestruction and not coll:
+           self.bouclier = False
+           self.bouclierEnDestruction = False
+           print "bouclier fondu"
+           return False
+            

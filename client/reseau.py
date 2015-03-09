@@ -6,18 +6,17 @@ import pygame
 from PodSixNet.Connection import connection, ConnectionListener
 
 from joueur import Joueur
-from map import Caisse, Mur, Bombe, Flamme, PowerUpFlamme, PowerUpSpeed, PowerUpBombe
+from map import Caisse, Mur, Bombe, Flamme, PowerUpFlamme, PowerUpSpeed, PowerUpBombe, PowerUpShield, Spawn
 
 
 class BomberlanClient(ConnectionListener):
     # Variable de classe représentant le numéro du joueur
-    
+
     def __init__(self, ip, port, groupe_joueurs):
         self.running = False  # On ne lance le jeu que quand au moins 2 joueurs sont connectés
         self.game_start = False
         self.game_over = False
         self.game_won = False
-        self.numero = -1  # Le numéro du joueur
         self.Connect((ip, port))
         self.groupe_joueurs = groupe_joueurs
 
@@ -27,15 +26,15 @@ class BomberlanClient(ConnectionListener):
     def Network_error(self, data):
         print 'error:', data['error']
         connection.Close()
+        sys.exit(2)
 
     def Network_disconnected(self, data):
         print 'Server disconnected'
 
     def Network_numero(self, data):
-        self.numero = data["numero"]
-        print "Je suis le client numéro %d" % (self.numero)
-        Joueur.numeroJoueur = self.numero
-        self.groupe_joueurs.add(Joueur(self.numero))
+        print "Je suis le client numéro %d" % data["numero"]
+        Joueur.numeroJoueur = data["numero"]
+        self.groupe_joueurs.add(Joueur(data["numero"], data['life']))
 
     def Network_game_start(self, data):
         self.game_start = True
@@ -107,7 +106,7 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
         pygame.sprite.Group.__init__(self)
 
     def Network_bombe(self, data):
-        self.add(Bombe(data['bombe_id'], data['bombe_center']))
+        self.add(Bombe(data['bombe_id'], data['bombe_center'], data['joueur_id']))
 
     def Network_bombe_remove(self, data):
         self.bombeById(data['bombe_id']).kill()
@@ -117,7 +116,7 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
 
 
 class GroupePowerUps(pygame.sprite.Group, ConnectionListener):
-    """ Représente un groupe de power up qui écoute le réseau"""
+    """ Représente un groupe de power ups qui écoute le réseau"""
 
     def __init__(self):
         pygame.sprite.Group.__init__(self)
@@ -129,6 +128,8 @@ class GroupePowerUps(pygame.sprite.Group, ConnectionListener):
             self.add(PowerUpSpeed(data["powerUp_id"], data["powerUp_center"]))
         elif data["powerUp_type"] == "bombe":
             self.add(PowerUpBombe(data["powerUp_id"], data["powerUp_center"]))
+        elif data["powerUp_type"] == "shield":
+            self.add(PowerUpShield(data["powerUp_id"], data["powerUp_center"])) 
 
     def Network_powerUp_remove(self, data):
         self.powerUpById(data['powerUp_id']).kill()
@@ -136,3 +137,12 @@ class GroupePowerUps(pygame.sprite.Group, ConnectionListener):
     def powerUpById(self, id):
         return [b for b in self if b.id == id][0]
 
+
+class GroupeSpawns(pygame.sprite.Group, ConnectionListener):
+    """ Représente un groupe de spawns qui écoute le réseau"""
+
+    def __init__(self):
+        pygame.sprite.Group.__init__(self)
+
+    def Network_spawn(self, data):
+        self.add(Spawn(data['numero_joueur'], data['spawn_center']))

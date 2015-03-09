@@ -41,7 +41,8 @@ ASSET_ANIMATE_FLAMES = {
 ASSET_POWER_UP = {
     'flamme': ASSET + "power_up_flamme.png",
     'speed': ASSET + "power_up_speed.png",
-    'bombe': ASSET + "power_up_bombe.png"
+    'bombe': ASSET + "power_up_bombe.png",
+    'shield': ASSET + "power_up_shield.png"
 }
 ASSET_JOUEUR = {
     'BAS': ASSET + "joueur_bas.png",
@@ -56,3 +57,9 @@ ASSET_ENNEMI = {
     'SHADOW': ASSET + "shadow.png"
 }
 ASSET_SOL = ASSET + "bg_1.png"
+ASSET_SPAWN_JOUEUR = ASSET + "spawn_joueur.png"
+ASSET_SPAWN_ENNEMI = ASSET + "spawn_ennemi.png"
+ASSET_LIFE = ASSET + "life.png"
+ASSET_LIFE_GONE = ASSET + "life_gone.png"
+ASSET_BULLE_INVINCIBLE = ASSET + "bulle_invicible.png"
+ASSET_BOUCLIER = ASSET + "shield.png"
