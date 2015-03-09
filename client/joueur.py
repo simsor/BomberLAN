@@ -5,7 +5,7 @@ import pygame
 from PodSixNet.Connection import ConnectionListener
 
 from functions import load_png
-from config import ASSET_JOUEUR, ASSET_ENNEMI, ASSET_BULLE_INVINCIBLE, ASSET_FLAME
+from config import ASSET_JOUEUR, ASSET_ENNEMI, ASSET_BULLE_INVINCIBLE, ASSET_FLAME, ASSET_BOUCLIER
 
 
 class Joueur(pygame.sprite.Sprite):
@@ -18,6 +18,7 @@ class Joueur(pygame.sprite.Sprite):
         self.numero = numero
         self.life = life
         self.is_at_spawn = False
+        self.bouclier = False
 
         if numero == Joueur.numeroJoueur:
             # Alors c'est nous
@@ -34,6 +35,7 @@ class Joueur(pygame.sprite.Sprite):
 
         self.image, self.rect = self.bas, self.bas.get_rect()
         self.bulle_invicible_image = load_png(ASSET_BULLE_INVINCIBLE)[0]
+        self.bouclier_image = load_png(ASSET_BOUCLIER)[0]
 
     def updateDirection(self, direction):
         if direction == "bas":
@@ -54,6 +56,13 @@ class Joueur(pygame.sprite.Sprite):
                     image_finale = pygame.Surface.convert_alpha(self.bulle_invicible_image)
                     image_finale.blit(self.image, (0, 0))
 
+        if self.bouclier:
+            if image_finale is None:
+                image_finale = pygame.Surface.convert_alpha(self.image)
+            
+            image_finale.blit(self.bouclier_image, (0,0))
+            
+                    
         if image_finale == None:
             image_finale = self.image
 

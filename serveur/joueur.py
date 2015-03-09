@@ -33,6 +33,7 @@ class Joueur(pygame.sprite.Sprite):
         self.speed = [0, 0]
 
         self.bouclier = False
+        self.bouclierEnDestruction = False
 
     def respawn(self):
         self.rect.topleft = self.spawn.topleft
@@ -93,11 +94,15 @@ class Joueur(pygame.sprite.Sprite):
             self.die(serveur)
             return
 
-        if not self.isAtSpawn() and pygame.sprite.spritecollide(self, serveur.flammes, False,
-                                                                pygame.sprite.collide_rect_ratio(0.9)):
-            if self.life > 1:
-                print "Le joueur %d vient d'exploser (mais n'est pas mort, c'est un Chuck Norris)" % self.numero
-            self.respawn()
+        collision_flammes = pygame.sprite.spritecollide(self, serveur.flammes, False,
+                                                        pygame.sprite.collide_rect_ratio(0.9))
+        shieldState = self.checkShield(serveur.flammes, collision_flammes)
+        
+        if not self.isAtSpawn() and collision_flammes:
+            if shieldState:
+                if self.life > 1:
+                    print "Le joueur %d vient d'exploser (mais n'est pas mort, c'est un Chuck Norris)" % self.numero
+                self.respawn()
 
         else:
             ancienCentre = self.rect.center
@@ -133,3 +138,19 @@ class Joueur(pygame.sprite.Sprite):
                 self.is_at_spawn = False
 
         return self.is_at_spawn
+
+    def checkShield(self, flammes, coll):
+        if not self.bouclier:
+            return True
+        
+        if self.bouclier and coll:
+            self.bouclierEnDestruction = True
+            print "bouclier en train de fondre"
+            return False
+
+        if self.bouclierEnDestruction and not coll:
+           self.bouclier = False
+           self.bouclierEnDestruction = False
+           print "bouclier fondu"
+           return False
+            
