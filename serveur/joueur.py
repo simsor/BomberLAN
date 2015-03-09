@@ -31,6 +31,8 @@ class Joueur(pygame.sprite.Sprite):
         self.velocity = PLAYER_SPEED
         self.speed = [0, 0]
 
+        self.bouclier = False
+
     def respawn(self):
         self.rect.topleft = self.spawn.topleft
         self.direction = "bas"

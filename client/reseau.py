@@ -6,7 +6,7 @@ import pygame
 from PodSixNet.Connection import connection, ConnectionListener
 
 from joueur import Joueur
-from map import Caisse, Mur, Bombe, Flamme, PowerUpFlamme, PowerUpSpeed, PowerUpBombe, Spawn
+from map import Caisse, Mur, Bombe, Flamme, PowerUpFlamme, PowerUpSpeed, PowerUpBombe, PowerUpShield, Spawn
 
 
 class BomberlanClient(ConnectionListener):
@@ -128,6 +128,8 @@ class GroupePowerUps(pygame.sprite.Group, ConnectionListener):
             self.add(PowerUpSpeed(data["powerUp_id"], data["powerUp_center"]))
         elif data["powerUp_type"] == "bombe":
             self.add(PowerUpBombe(data["powerUp_id"], data["powerUp_center"]))
+        elif data["powerUp_type"] == "shield":
+            self.add(PowerUpShield(data["powerUp_id"], data["powerUp_center"])) 
 
     def Network_powerUp_remove(self, data):
         self.powerUpById(data['powerUp_id']).kill()

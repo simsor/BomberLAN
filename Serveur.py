@@ -24,8 +24,12 @@ class ClientChannel(Channel):
     def update(self):
         self.joueur.update(self._server)
         for client in self._server.clients:
-            self.Send({"action": "joueur_position", "numero": client.joueur.numero, "centre": client.joueur.rect.center,
-                       "direction": client.joueur.direction, 'life': client.joueur.life})
+            self.Send({"action": "joueur_position",
+                       "numero": client.joueur.numero,
+                       "centre": client.joueur.rect.center,
+                       "direction": client.joueur.direction,
+                       "bouclier": client.joueur.bouclier,
+                       'life': client.joueur.life})
 
     def Network_keys(self, data):
         touches = data["keys"]

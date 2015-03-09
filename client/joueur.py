@@ -54,6 +54,7 @@ class GroupeJoueurs(pygame.sprite.Group, ConnectionListener):
         joueur.life = data['life']
         joueur.rect.center = data['centre']
         joueur.updateDirection(data["direction"])
+        joueur.bouclier = data["bouclier"]
 
     def Network_joueur(self, data):
         print "Connection du joueur %d" % (data["numero"])

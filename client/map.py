@@ -125,3 +125,9 @@ class PowerUpBombe(PowerUp):
 
     def __init__(self, id, center):
         super(PowerUpBombe, self).__init__("bombe", id, center)
+
+class PowerUpShield(PowerUp):
+    """ Représente le power up bouclier : survie à une explosion """
+
+    def __init__(self, id, center):
+        super(PowerUpShield, self).__init__("shield", id, center)
