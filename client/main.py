@@ -42,6 +42,9 @@ def main_function():
             sol_center = (i * 32, j * 32)
             background.add(Sol(sol_center))
 
+    music_played = "assets/track/fond.ogg"
+    pygame.mixer.music.load(music_played)
+    pygame.mixer.music.play(-1, 0.0)
 
     # Le jeu
     while enCours:
@@ -93,10 +96,18 @@ def main_function():
                     time_delay = .1
 
         elif client.game_over:
+            if music_played == "assets/track/fond.ogg" :
+                pygame.mixer.music.stop()
+                music_played = "assets/track/perdu.ogg"
+                pygame.mixer.music.load(music_played)
+                pygame.mixer.music.play(1, 0.0)
+
+
             display_message(screen, font_bold, client.game_over_message, (255, 100, 100))
             time_delay = .05
 
         elif client.game_won:
+            pygame.mixer.music.stop()
             display_message(screen, font_bold, client.game_won_message, (255, 100, 100))
             time_delay = .05
 
@@ -104,6 +115,7 @@ def main_function():
 
         time.sleep(time_delay)
         time_delay = .001
+    pygame.mixer.music.stop()
 
 
 def display_message(screen, font, message, color):
@@ -114,3 +126,7 @@ def display_message(screen, font, message, color):
                                  (screen.get_rect().height - disp_message_rect.height) / 2)
 
     screen.blit(disp_message, disp_message_rect)
+
+def checkMusic(music):
+
+
