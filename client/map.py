@@ -33,13 +33,12 @@ class Flamme(pygame.sprite.Sprite):
         self.timer = BOMB_EXPLOSE_DELAY
         self.image_time = BOMB_EXPLOSE_DELAY / len(ASSET_ANIMATE_FLAMES)
 
-    def update(self):
+    def update(self, joueurs):
         self.timer -= 1
         for i in range(len(ASSET_ANIMATE_FLAMES)):
             if self.timer == self.image_time * i:
                 self.image = load_png(ASSET_ANIMATE_FLAMES[i])[0]
                 break
-
 
 class Sol(pygame.sprite.Sprite):
     """Représente un sol animé"""
@@ -56,6 +55,8 @@ class Spawn(pygame.sprite.Sprite):
 
     def __init__(self, numero_joueur, center):
         pygame.sprite.Sprite.__init__(self)
+        self.numero_joueur = numero_joueur
+
         if numero_joueur == Joueur.numeroJoueur:
             self.image, self.rect = load_png(ASSET_SPAWN_JOUEUR)
         else:

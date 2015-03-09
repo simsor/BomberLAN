@@ -5,7 +5,8 @@ import pygame
 from PodSixNet.Connection import ConnectionListener
 
 from functions import load_png
-from config import ASSET_JOUEUR, ASSET_ENNEMI
+from config import ASSET_JOUEUR, ASSET_ENNEMI, ASSET_BULLE_INVINCIBLE, ASSET_FLAME
+
 
 class Joueur(pygame.sprite.Sprite):
     """ Classe "coquille vide" représentant un joueur """
@@ -16,6 +17,7 @@ class Joueur(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self),
         self.numero = numero
         self.life = life
+        self.is_at_spawn = False
 
         if numero == Joueur.numeroJoueur:
             # Alors c'est nous
@@ -31,6 +33,7 @@ class Joueur(pygame.sprite.Sprite):
             self.gauche = pygame.transform.flip(self.droite, True, False)
 
         self.image, self.rect = self.bas, self.bas.get_rect()
+        self.bulle_invicible_image = load_png(ASSET_BULLE_INVINCIBLE)[0]
 
     def updateDirection(self, direction):
         if direction == "bas":
@@ -41,6 +44,30 @@ class Joueur(pygame.sprite.Sprite):
             self.image = self.gauche
         else:
             self.image = self.droite
+
+    def update(self, spawns):
+        image_finale = None
+
+        for s in spawns:
+            if s.numero_joueur == self.numero:
+                if self.isAtSpawn(s):
+                    image_finale = pygame.Surface.convert_alpha(self.bulle_invicible_image)
+                    image_finale.blit(self.image, (0, 0))
+
+        if image_finale == None:
+            image_finale = self.image
+
+        self.image = image_finale
+
+    def isAtSpawn(self, spawn):
+        if spawn.rect.topleft == self.rect.topleft:
+            self.is_at_spawn = True
+
+        elif self.is_at_spawn:
+            if not spawn.rect.colliderect(self.rect):
+                self.is_at_spawn = False
+
+        return self.is_at_spawn
 
 
 class GroupeJoueurs(pygame.sprite.Group, ConnectionListener):

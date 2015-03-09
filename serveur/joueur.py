@@ -19,6 +19,7 @@ class Joueur(pygame.sprite.Sprite):
         self.rect.topleft = spawn_topleft
         self.direction = "bas"
 
+        self.is_at_spawn = False
         self.spawn = pygame.Rect(spawn_topleft, (32, 32))
         self.life_max = PLAYER_LIFE_MAX
         self.life = PLAYER_LIFE_MAX
@@ -122,8 +123,11 @@ class Joueur(pygame.sprite.Sprite):
 
 
     def isAtSpawn(self):
-        spawn = self.spawn.inflate(-16, -16)
-        if spawn.colliderect(self.rect):
-            return True
-        else:
-            return False
+        if self.spawn.topleft == self.rect.topleft:
+            self.is_at_spawn = True
+
+        elif self.is_at_spawn:
+            if not self.rect.colliderect(self.spawn):
+                self.is_at_spawn = False
+
+        return self.is_at_spawn

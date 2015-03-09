@@ -67,7 +67,8 @@ def main_function():
         power_ups.Pump()
         client.Loop()
 
-        flammes.update()
+        joueurs.update(spawns)
+        flammes.update(joueurs)
 
         screen.fill(SCREEN_COLOR)
         background.draw(screen)
