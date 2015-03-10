@@ -1,3 +1,7 @@
 La feuille de sprites vient de http://opengameart.org/content/bomb-party-the-complete-set
 Faite par Matt Hackett et modifiée par Cem Kalyoncu et /usr/share
 
+Sons :
+http://incompetech.com/music/royalty-free/
+http://www.sound-fishing.net/musique/jingle
+http://www.universal-soundbank.com/applaudissements.html

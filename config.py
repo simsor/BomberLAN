@@ -63,3 +63,9 @@ ASSET_LIFE = ASSET + "life.png"
 ASSET_LIFE_GONE = ASSET + "life_gone.png"
 ASSET_BULLE_INVINCIBLE = ASSET + "bulle_invicible.png"
 ASSET_BOUCLIER = ASSET + "shield.png"
+
+ASSET_MUSIC = {
+    'fond': ASSET + "/track/fond.ogg",
+    'perdu': ASSET + "/track/perdu.ogg",
+    'gagne': ASSET + "/track/gagnant.ogg"
+}
