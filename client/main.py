@@ -59,6 +59,7 @@ def jeu(ip, port):
     pygame.init()
 
     screen = pygame.display.set_mode((ARENA_WIDTH * 32 + PANEL_WIDTH, ARENA_HEIGHT * 32), pygame.RESIZABLE)
+    pygame.display.set_caption("BomberLAN @ " + ip)
     enCours = True
     clock = pygame.time.Clock()
 

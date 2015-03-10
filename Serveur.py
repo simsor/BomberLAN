@@ -55,6 +55,7 @@ class MyServer(Server):
         self.nb_joueurs = kwargs["nb_joueurs"]
 
         self.screen = pygame.display.set_mode((48, 48))
+        pygame.display.set_caption("BomberSERV @ " + kwargs["localaddr"][0])
         self.clients = []
         self.clock = pygame.time.Clock()
 
@@ -256,7 +257,7 @@ class MyServer(Server):
 
 
 if __name__ == "__main__":
-    app = gui.Desktop(theme=gui.Theme("data/themes/clean"))
+    app = gui.Desktop(title="coucou", theme=gui.Theme("data/themes/clean"))
     app.connect(gui.QUIT, app.quit, None)
 
     table = gui.Table()
@@ -283,8 +284,8 @@ if __name__ == "__main__":
     table.tr()
     table.td(gui.Label("Nombre joueurs :"))
 
-    slider_nb = gui.HSlider(value=4, min=2, max=4, size=5, width=150)
-    champ_nb = gui.Label("4")
+    slider_nb = gui.HSlider(value=2, min=2, max=4, size=5, width=150)
+    champ_nb = gui.Label("2")
 
     def maj_nb(valeurs):
         (champ, slider) = valeurs
@@ -307,5 +308,5 @@ if __name__ == "__main__":
 
     bouton_go.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port, champ_nb))
     table.td(bouton_go)
-
+    
     app.run(table)
