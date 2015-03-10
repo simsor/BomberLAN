@@ -9,7 +9,7 @@ from joueur import GroupeJoueurs
 from map import Sol, Shadow
 from functions import load_png
 from config import ARENA_HEIGHT, ARENA_WIDTH, PLAYER_LIFE_MAX
-from config import ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE
+from config import ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE,ASSET_MUSIC
 
 SCREEN_COLOR = (0, 0, 0)
 PANEL_WIDTH = 100
@@ -48,7 +48,7 @@ def main_function():
             sol_center = (i * 32, j * 32)
             background.add(Sol(sol_center))
 
-    music_played = "assets/track/fond.ogg"
+    music_played = ASSET_MUSIC['fond']
     pygame.mixer.music.load(music_played)
     pygame.mixer.music.play(-1, 0.0)
 
@@ -103,18 +103,22 @@ def main_function():
                 time_delay = .1
 
         elif client.game_over:
-            if music_played == "assets/track/fond.ogg" :
+            if music_played != ASSET_MUSIC['perdu'] :
                 pygame.mixer.music.stop()
-                music_played = "assets/track/perdu.ogg"
+                music_played = ASSET_MUSIC['perdu']
                 pygame.mixer.music.load(music_played)
                 pygame.mixer.music.play(1, 0.0)
-
 
             display_message(screen, font_bold, client.game_over_message, (255, 100, 100))
             time_delay = .05
 
         elif client.game_won:
-            pygame.mixer.music.stop()
+            if music_played != ASSET_MUSIC['gagne'] :
+                pygame.mixer.music.stop()
+                music_played = ASSET_MUSIC['gagne']
+                pygame.mixer.music.load(music_played)
+                pygame.mixer.music.play(1, 0.0)
+
             display_message(screen, font_bold, client.game_won_message, (255, 100, 100))
             time_delay = .05
 
