@@ -10,18 +10,51 @@ from map import Sol, Shadow
 from functions import load_png
 from config import ARENA_HEIGHT, ARENA_WIDTH, PLAYER_LIFE_MAX
 from config import ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE
+from pgu import gui
 
 SCREEN_COLOR = (0, 0, 0)
 PANEL_WIDTH = 100
 
 
 def main_function():
-    if len(sys.argv) != 3:
-        print "Usage: %s ip port" % (sys.argv[0])
-        sys.exit(3)
+    app = gui.Desktop(theme=gui.Theme("data/themes/clean"))
+    app.connect(gui.QUIT, app.quit, None)
 
-    ip = sys.argv[1]
-    port = int(sys.argv[2])
+    table = gui.Table()
+
+    # Titre
+    table.tr()
+    table.td(gui.Label("Connexion au serveur"), colspan=4)
+
+    # IP
+    table.tr()
+    table.td(gui.Label("IP :"))
+
+    champ_ip = gui.Input(value="127.0.0.1", size=15)
+    table.td(champ_ip, colspan=3)
+
+    # Port d'écoute
+    table.tr()
+    table.td(gui.Label("Port : "))
+
+    champ_port = gui.Input(value="8888", size=5)
+    table.td(champ_port, colspan=3)
+
+    # Bouton connexion
+    table.tr()
+    bouton_conn = gui.Button("Connexion")
+    table.td(bouton_conn)
+
+    def lancer_jeu(valeurs):
+        (ip, port) = valeurs
+        jeu(ip.value, int(port.value))
+        sys.exit(0)
+
+    bouton_conn.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port))
+
+    app.run(table)
+
+def jeu(ip, port):
     time_delay = .0
 
     pygame.init()
