@@ -59,10 +59,9 @@ class Joueur(pygame.sprite.Sprite):
         if self.bouclier:
             if image_finale is None:
                 image_finale = pygame.Surface.convert_alpha(self.image)
-            
-            image_finale.blit(self.bouclier_image, (0,0))
-            
-                    
+
+            image_finale.blit(self.bouclier_image, (0, 0))
+
         if image_finale == None:
             image_finale = self.image
 

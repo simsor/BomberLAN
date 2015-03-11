@@ -23,6 +23,11 @@ BOMB_DELAY = 120
 BOMB_EXPLOSE_DELAY = 40
 BOMB_RANGE = 2
 
+# Config des cases
+# Taille des cotés
+
+SIDE_LENGTH = 32
+
 # Images / assets :
 # définition générale ici pour ne pas avoir à changer côté serveur et client à chaque fois
 
