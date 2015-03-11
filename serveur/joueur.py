@@ -6,7 +6,7 @@ import sys
 
 from functions import load_png
 from config import ASSET_JOUEUR
-from config import PLAYER_SPEED, PLAYER_LIFE_MAX, BOMB_RANGE
+from config import PLAYER_SPEED, PLAYER_LIFE_MAX, BOMB_RANGE, SIDE_LENGTH
 from map import Bombe
 
 
@@ -20,7 +20,7 @@ class Joueur(pygame.sprite.Sprite):
         self.direction = "bas"
 
         self.is_at_spawn = False
-        self.spawn = pygame.Rect(spawn_topleft, (32, 32))
+        self.spawn = pygame.Rect(spawn_topleft, (SIDE_LENGTH, SIDE_LENGTH))
         self.life_max = PLAYER_LIFE_MAX
         self.life = PLAYER_LIFE_MAX
 
@@ -73,8 +73,8 @@ class Joueur(pygame.sprite.Sprite):
         if self.bombe_number <= 0:
             return
 
-        bomb_centerx = (32 * round(self.rect.centerx / 32)) + 16
-        bomb_centery = (32 * round(self.rect.centery / 32)) + 16
+        bomb_centerx = (SIDE_LENGTH * round(self.rect.centerx / SIDE_LENGTH)) + 16
+        bomb_centery = (SIDE_LENGTH * round(self.rect.centery / SIDE_LENGTH)) + 16
         for b in groupeBombes:
             if b.rect.center == (bomb_centerx, bomb_centery):
                 return  # Il y a déjà une bombe ici, on annule
@@ -115,8 +115,8 @@ class Joueur(pygame.sprite.Sprite):
             if collisions_murs or collisions_caisses or (self.bombe_detection and collisions_bombes):
                 self.rect.center = ancienCentre
                 # On arrondit la position pour qu'il soit aligné
-                self.rect.x = 32 * round(self.rect.midtop[0] / 32)
-                self.rect.y = 32 * round(self.rect.midright[1] / 32)
+                self.rect.x = SIDE_LENGTH * round(self.rect.midtop[0] / SIDE_LENGTH)
+                self.rect.y = SIDE_LENGTH * round(self.rect.midright[1] / SIDE_LENGTH)
 
             elif not self.bombe_detection and not collisions_bombes:
                 self.bombe_detection = True
