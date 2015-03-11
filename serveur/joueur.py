@@ -96,8 +96,8 @@ class Joueur(pygame.sprite.Sprite):
 
         collision_flammes = pygame.sprite.spritecollide(self, serveur.flammes, False,
                                                         pygame.sprite.collide_rect_ratio(0.9))
-        shieldState = self.checkShield(serveur.flammes, collision_flammes)
-        
+        shieldState = self.checkShield(collision_flammes)
+
         if not self.isAtSpawn() and collision_flammes:
             if shieldState:
                 if self.life > 1:
@@ -139,7 +139,7 @@ class Joueur(pygame.sprite.Sprite):
 
         return self.is_at_spawn
 
-    def checkShield(self, flammes, coll):
+    def checkShield(self, coll):
         if not self.bouclier:
             return True
         
