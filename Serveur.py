@@ -246,7 +246,9 @@ class MyServer(Server):
                 caisse_timer -= 1
                 if caisse_timer == 0:
                     self.caisses.add(self.randomize_caisse())
-                    caisse_timer = CAISSE_DELAY
+                    caisse_timer = CAISSE_DELAY - ((self.nb_caisses_explosees - CAISSE_NOMBRE_MINI) * 10)
+                    if caisse_timer > CAISSE_DELAY / 2:
+                        caisse_timer = CAISSE_DELAY / 2
 
             self.Pump()
 
@@ -308,5 +310,5 @@ if __name__ == "__main__":
 
     bouton_go.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port, champ_nb))
     table.td(bouton_go)
-    
+
     app.run(table)
