@@ -8,7 +8,7 @@ from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes, Gro
 from joueur import GroupeJoueurs
 from map import Sol, Shadow
 from functions import load_png
-from config import ARENA_HEIGHT, ARENA_WIDTH, PLAYER_LIFE_MAX, ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE, ASSET_MUSIC 
+from config import ARENA_HEIGHT, ARENA_WIDTH, PLAYER_LIFE_MAX, ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE, ASSET_MUSIC, SIDE_LENGTH
 from pgu import gui
 
 SCREEN_COLOR = (0, 0, 0)
@@ -58,7 +58,7 @@ def jeu(ip, port):
 
     pygame.init()
 
-    screen = pygame.display.set_mode((ARENA_WIDTH * 32 + PANEL_WIDTH, ARENA_HEIGHT * 32), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((ARENA_WIDTH * SIDE_LENGTH + PANEL_WIDTH, ARENA_HEIGHT * SIDE_LENGTH), pygame.RESIZABLE)
     pygame.display.set_caption("BomberLAN @ " + ip)
     enCours = True
     clock = pygame.time.Clock()
@@ -78,7 +78,7 @@ def jeu(ip, port):
 
     for i in range(0, ARENA_WIDTH):
         for j in range(0, ARENA_HEIGHT):
-            sol_center = (i * 32, j * 32)
+            sol_center = (i * SIDE_LENGTH, j * SIDE_LENGTH)
             background.add(Sol(sol_center))
 
     music_played = ASSET_MUSIC['fond']
@@ -177,7 +177,7 @@ def display_message(screen, font, message, color):
 def show_stat_panel(screen, joueurs, bombes):
     # Card width, card height
     card_width = PANEL_WIDTH - 10
-    card_height = (ARENA_HEIGHT * 32) / (len(joueurs) + 1)
+    card_height = (ARENA_HEIGHT * SIDE_LENGTH) / (len(joueurs) + 1)
 
     # Scale ratio
     scale = 1.4
@@ -199,14 +199,14 @@ def show_stat_panel(screen, joueurs, bombes):
     life_img_height = life_rect.height + 10
 
     # (width, height) center of the first card
-    w_center = (ARENA_WIDTH * 32) + (card_width / 2)
+    w_center = (ARENA_WIDTH * SIDE_LENGTH) + (card_width / 2)
     h_center = card_height / 2
 
     # Blit joueurs stats
     for joueur in joueurs:
         # Joueur's life blitting
         img_width = (card_width / (PLAYER_LIFE_MAX + 1))
-        life_rect.center = ((ARENA_WIDTH * 32 + img_width), h_center)
+        life_rect.center = ((ARENA_WIDTH * SIDE_LENGTH + img_width), h_center)
 
         for i in range(joueur.life):
             screen.blit(life_img, life_rect)
@@ -228,7 +228,7 @@ def show_stat_panel(screen, joueurs, bombes):
 
         # Joueur's bombes blitting
         img_width = (card_width / (bombe_joueur[joueur.numero] + 1))
-        bombe_rect.center = ((ARENA_WIDTH * 32 + img_width), h_center)
+        bombe_rect.center = ((ARENA_WIDTH * SIDE_LENGTH + img_width), h_center)
 
         for i in range(bombe_joueur[joueur.numero]):
             screen.blit(bombe_img, bombe_rect)
