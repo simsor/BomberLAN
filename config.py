@@ -16,9 +16,6 @@ ARENA_HEIGHT = 17
 CAISSE_DELAY = 1000
 CAISSE_NOMBRE_MINI = 12
 
-CAISSE_WIDTH = 32
-CAISSE_HEIGHT = 32
-
 # Config de la bombe
 # Timer avant explosion en frame
 
