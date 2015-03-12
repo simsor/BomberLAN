@@ -6,7 +6,7 @@ import random
 
 from functions import load_png
 from config import ASSET_CAISSE, ASSET_MUR, ASSET_BOMBE, ASSET_FLAME, ASSET_POWER_UP
-from config import BOMB_DELAY, BOMB_EXPLOSE_DELAY
+from config import BOMB_DELAY, BOMB_EXPLOSE_DELAY, SIDE_LENGTH
 
 
 HAUT = "haut"
@@ -32,10 +32,10 @@ class Bombe(pygame.sprite.Sprite):
     def souffle(self, murs, caisses):
         """ Explosion de la bombe : gère l'explosion """
         portee = {}
-        portee[HAUT] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [0, -32], murs, caisses)
-        portee[DROITE] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [32, 0], murs, caisses)
-        portee[BAS] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [0, 32], murs, caisses)
-        portee[GAUCHE] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [-32, 0], murs, caisses)
+        portee[HAUT] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [0, -SIDE_LENGTH], murs, caisses)
+        portee[DROITE] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [SIDE_LENGTH, 0], murs, caisses)
+        portee[BAS] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [0, SIDE_LENGTH], murs, caisses)
+        portee[GAUCHE] = self.calcul_souffle(self.joueur.bombe_range, self.rect, [-SIDE_LENGTH, 0], murs, caisses)
         return portee
 
     def calcul_souffle(self, portee, rect, speed, murs, caisses):
@@ -60,13 +60,13 @@ class Bombe(pygame.sprite.Sprite):
                 xAbs, yAbs = self.rect.center
                 for i in range(souffle[direction]):
                     if direction == HAUT:
-                        yAbs -= 32
+                        yAbs -= SIDE_LENGTH
                     elif direction == DROITE:
-                        xAbs += 32
+                        xAbs += SIDE_LENGTH
                     elif direction == BAS:
-                        yAbs += 32
+                        yAbs += SIDE_LENGTH
                     elif direction == GAUCHE:
-                        xAbs -= 32
+                        xAbs -= SIDE_LENGTH
 
                     flammes.append(Flamme(xAbs, yAbs))
 

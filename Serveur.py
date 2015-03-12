@@ -8,7 +8,7 @@ import sys
 
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
-from config import ARENA_HEIGHT, ARENA_WIDTH, CAISSE_DELAY, CAISSE_NOMBRE_MINI
+from config import ARENA_HEIGHT, ARENA_WIDTH, CAISSE_DELAY, CAISSE_NOMBRE_MINI, SIDE_LENGTH
 from serveur.map import Mur, Caisse
 from serveur.joueur import Joueur
 from pgu import gui
@@ -74,41 +74,41 @@ class MyServer(Server):
 
         # On crée une bordure de murs
         for i in range(0, ARENA_WIDTH):
-            self.murs.add(Mur(i * 32, 0))
-            self.murs.add(Mur(i * 32, ARENA_HEIGHT * 32 - 32))
+            self.murs.add(Mur(i * SIDE_LENGTH, 0))
+            self.murs.add(Mur(i * SIDE_LENGTH, ARENA_HEIGHT * SIDE_LENGTH - SIDE_LENGTH))
 
         for i in range(1, ARENA_HEIGHT):
-            self.murs.add(Mur(0, i * 32))
-            self.murs.add(Mur(ARENA_WIDTH * 32 - 32, i * 32))
+            self.murs.add(Mur(0, i * SIDE_LENGTH))
+            self.murs.add(Mur(ARENA_WIDTH * SIDE_LENGTH - SIDE_LENGTH, i * SIDE_LENGTH))
 
         # On crée la grille
         for i in range(1, ARENA_WIDTH - 2):
             for j in range(1, ARENA_HEIGHT - 2):
                 if i % 2 == 0 and j % 2 == 0:
-                    self.murs.add(Mur(i * 32, j * 32))
+                    self.murs.add(Mur(i * SIDE_LENGTH, j * SIDE_LENGTH))
 
         # On crée les caisses : on rempli le centre, en ne laissant que les spawns de libres
         for i in range(3, ARENA_WIDTH - 3, 1):
             if random.randint(0, 100) <= 62:
-                self.caisses.add(Caisse(i * 32, 1 * 32))
+                self.caisses.add(Caisse(i * SIDE_LENGTH, 1 * SIDE_LENGTH))
             if random.randint(0, 100) <= 62:
-                self.caisses.add(Caisse(i * 32, (ARENA_HEIGHT - 2) * 32))
+                self.caisses.add(Caisse(i * SIDE_LENGTH, (ARENA_HEIGHT - 2) * SIDE_LENGTH))
 
         for i in range(3, ARENA_HEIGHT - 3, 1):
             if random.randint(0, 100) <= 62:
-                self.caisses.add(Caisse(1 * 32, i * 32))
+                self.caisses.add(Caisse(1 * SIDE_LENGTH, i * SIDE_LENGTH))
             if random.randint(0, 100) <= 62:
-                self.caisses.add(Caisse((ARENA_WIDTH - 2) * 32, i * 32))
+                self.caisses.add(Caisse((ARENA_WIDTH - 2) * SIDE_LENGTH, i * SIDE_LENGTH))
 
         for i in range(2, ARENA_HEIGHT - 2, 1):
             if i % 2 == 0:
                 for j in range(3, ARENA_WIDTH - 3, 2):
                     if random.randint(0, 100) <= 62:
-                        self.caisses.add(Caisse(j * 32, i * 32))
+                        self.caisses.add(Caisse(j * SIDE_LENGTH, i * SIDE_LENGTH))
             else:
                 for j in range(2, ARENA_WIDTH - 2, 1):
                     if random.randint(0, 100) <= 62:
-                        self.caisses.add(Caisse(j * 32, i * 32))
+                        self.caisses.add(Caisse(j * SIDE_LENGTH, i * SIDE_LENGTH))
 
         # On crée les listes de centres de murs et de caisses
         self.centres_murs = [mur.rect.center for mur in self.murs]
@@ -131,8 +131,8 @@ class MyServer(Server):
                 nb_player = i
                 break
 
-        xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * 32
-        ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * 32
+        xSpawn = (1 + (ARENA_WIDTH - 3) * (nb_player % 2)) * SIDE_LENGTH
+        ySpawn = (1 + (ARENA_HEIGHT - 3) * int(nb_player * 0.6)) * SIDE_LENGTH
         channel.joueur = Joueur(nb_player, (xSpawn, ySpawn))
         channel.Send({"action": "numero", "numero": channel.joueur.numero, 'life': channel.joueur.life})
         channel.Send(
@@ -206,7 +206,7 @@ class MyServer(Server):
 
         for i in range(ARENA_WIDTH):
             for j in range(ARENA_HEIGHT):
-                topleft = (i * 32, j * 32)
+                topleft = (i * SIDE_LENGTH, j * SIDE_LENGTH)
                 if not toplefts.__contains__(topleft):
                     possible_toplefts.append(topleft)
 
