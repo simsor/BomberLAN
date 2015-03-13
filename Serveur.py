@@ -259,56 +259,67 @@ class MyServer(Server):
 
 
 if __name__ == "__main__":
-    app = gui.Desktop(title="coucou", theme=gui.Theme("data/themes/clean"))
-    app.connect(gui.QUIT, app.quit, None)
-
-    table = gui.Table()
-
-    # Titre
-    table.tr()
-    table.td(gui.Label("Config serveur"), colspan=4)
-
-    # IP du serveur
-    table.tr()
-    table.td(gui.Label("IP : "))
-
-    champ_ip = gui.Input(value="0.0.0.0", size=15)
-    table.td(champ_ip, colspan=3)
-
-    # Port d'écoute
-    table.tr()
-    table.td(gui.Label("Port : "))
-
-    champ_port = gui.Input(value="8888", size=5)
-    table.td(champ_port, colspan=3)
-
-    # Nombre de joueurs
-    table.tr()
-    table.td(gui.Label("Nombre joueurs :"))
-
-    slider_nb = gui.HSlider(value=2, min=2, max=4, size=5, width=150)
-    champ_nb = gui.Label("2")
-
-    def maj_nb(valeurs):
-        (champ, slider) = valeurs
-        champ.value = str(slider.value)
-        champ.repaint()
-
-    slider_nb.connect(gui.CHANGE, maj_nb, (champ_nb, slider_nb))
-
-    table.td(slider_nb, colspan=3)
-    table.tr()
-    table.td(champ_nb, colspan=4)
-
-    # Bouton GO
-    table.tr()
-    bouton_go = gui.Button(value="GO !")
-
-    def lancer_jeu(valeurs):
-        (ip, port, nb) = valeurs
-        MyServer(localaddr=(ip.value, int(port.value)), nb_joueurs=int(nb.value))
-
-    bouton_go.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port, champ_nb))
-    table.td(bouton_go)
-
-    app.run(table)
+    # On évite PGU pour Michel
+    if len(sys.argv) >= 4 and sys.argv[1] == "--michel":
+        ip = sys.argv[2]
+        port = int(sys.argv[3])
+        if len(sys.argv) == 5:
+            nb = int(sys.argv[4])
+        else:
+            nb = 2
+        MyServer(localaddr=(ip, port), nb_joueurs=nb)
+    else:
+        # Les autres ont le droit à une interface jolie
+        app = gui.Desktop(title="coucou", theme=gui.Theme("data/themes/clean"))
+        app.connect(gui.QUIT, app.quit, None)
+        
+        table = gui.Table()
+        
+        # Titre
+        table.tr()
+        table.td(gui.Label("Config serveur"), colspan=4)
+        
+        # IP du serveur
+        table.tr()
+        table.td(gui.Label("IP : "))
+        
+        champ_ip = gui.Input(value="0.0.0.0", size=15)
+        table.td(champ_ip, colspan=3)
+        
+        # Port d'écoute
+        table.tr()
+        table.td(gui.Label("Port : "))
+        
+        champ_port = gui.Input(value="8888", size=5)
+        table.td(champ_port, colspan=3)
+        
+        # Nombre de joueurs
+        table.tr()
+        table.td(gui.Label("Nombre joueurs :"))
+        
+        slider_nb = gui.HSlider(value=2, min=2, max=4, size=5, width=150)
+        champ_nb = gui.Label("2")
+        
+        def maj_nb(valeurs):
+            (champ, slider) = valeurs
+            champ.value = str(slider.value)
+            champ.repaint()
+            
+        slider_nb.connect(gui.CHANGE, maj_nb, (champ_nb, slider_nb))
+        
+        table.td(slider_nb, colspan=3)
+        table.tr()
+        table.td(champ_nb, colspan=4)
+        
+        # Bouton GO
+        table.tr()
+        bouton_go = gui.Button(value="GO !")
+        
+        def lancer_jeu(valeurs):
+            (ip, port, nb) = valeurs
+            MyServer(localaddr=(ip.value, int(port.value)), nb_joueurs=int(nb.value))
+            
+        bouton_go.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port, champ_nb))
+        table.td(bouton_go)
+        
+        app.run(table)
