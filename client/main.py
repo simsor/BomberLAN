@@ -17,42 +17,50 @@ PANEL_WIDTH = 100
 
 
 def main_function():
-    app = gui.Desktop(theme=gui.Theme("data/themes/clean"))
-    app.connect(gui.QUIT, app.quit, None)
+     # On évite PGU pour Michel
+    if len(sys.argv) >= 4 and sys.argv[1] == "--michel":
+        ip = sys.argv[2]
+        port = int(sys.argv[3])
 
-    table = gui.Table()
+        jeu(ip, port)
 
-    # Titre
-    table.tr()
-    table.td(gui.Label("Connexion au serveur"), colspan=4)
+    else:
+        app = gui.Desktop(theme=gui.Theme("data/themes/clean"))
+        app.connect(gui.QUIT, app.quit, None)
 
-    # IP
-    table.tr()
-    table.td(gui.Label("IP :"))
+        table = gui.Table()
 
-    champ_ip = gui.Input(value="127.0.0.1", size=15)
-    table.td(champ_ip, colspan=3)
+        # Titre
+        table.tr()
+        table.td(gui.Label("Connexion au serveur"), colspan=4)
 
-    # Port d'écoute
-    table.tr()
-    table.td(gui.Label("Port : "))
+        # IP
+        table.tr()
+        table.td(gui.Label("IP :"))
 
-    champ_port = gui.Input(value="8888", size=5)
-    table.td(champ_port, colspan=3)
+        champ_ip = gui.Input(value="127.0.0.1", size=15)
+        table.td(champ_ip, colspan=3)
 
-    # Bouton connexion
-    table.tr()
-    bouton_conn = gui.Button("Connexion")
-    table.td(bouton_conn)
+        # Port d'écoute
+        table.tr()
+        table.td(gui.Label("Port : "))
 
-    def lancer_jeu(valeurs):
-        (ip, port) = valeurs
-        jeu(ip.value, int(port.value))
-        sys.exit(0)
+        champ_port = gui.Input(value="8888", size=5)
+        table.td(champ_port, colspan=3)
 
-    bouton_conn.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port))
+        # Bouton connexion
+        table.tr()
+        bouton_conn = gui.Button("Connexion")
+        table.td(bouton_conn)
 
-    app.run(table)
+        def lancer_jeu(valeurs):
+            (ip, port) = valeurs
+            jeu(ip.value, int(port.value))
+            sys.exit(0)
+
+        bouton_conn.connect(gui.CLICK, lancer_jeu, (champ_ip, champ_port))
+
+        app.run(table)
 
 
 def jeu(ip, port):
