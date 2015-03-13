@@ -187,7 +187,7 @@ def show_stat_panel(screen, joueurs, bombes):
     for j in joueurs:
         bombe_joueur[j.numero] = 0
     for bombe in bombes:
-        if (bombe.joueur_id in bombe_joueurs.keys()): 
+        if (bombe.joueur_id in bombe_joueur.keys()): 
             bombe_joueur[bombe.joueur_id] += 1
 
     # Bombe definitions
