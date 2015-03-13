@@ -247,7 +247,7 @@ class MyServer(Server):
                 if caisse_timer == 0:
                     self.caisses.add(self.randomize_caisse())
                     caisse_timer = CAISSE_DELAY - ((self.nb_caisses_explosees - CAISSE_NOMBRE_MINI) * 10)
-                    if caisse_timer > CAISSE_DELAY / 2:
+                    if caisse_timer < CAISSE_DELAY / 2:
                         caisse_timer = CAISSE_DELAY / 2
 
             self.Pump()

@@ -135,8 +135,8 @@ class Caisse(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, serveur.flammes, False):
             print "Une caisse a été détruite"
 
-            if random.randint(1, 10) <= 1:
-                rand = random.randint(1, 3)
+            if random.randint(1, 100) <= 17:
+                rand = random.randint(1, 5)
                 if rand == 1:
                     # create power_up_speed
                     power = PowerUpSpeed(self.rect.x, self.rect.y)
