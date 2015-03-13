@@ -297,8 +297,6 @@ def init_game(screen):
                     for value in pressed.values():
                         all_pressed = (all_pressed and value)
 
-                    print all_pressed
-
                     if all_pressed:
                         screen.fill((0, 0, 0))
                         display_message(screen, font_title, "C'est parti  !  (on va gagner)", (152, 152, 100))
@@ -310,25 +308,29 @@ def init_game(screen):
                     if not pressed['haut'] and pressed['espace']:
                         pressed['haut'] = True
                         key_to_press = 'gauche'
-                    image_joueur = images_joueur['haut']
+                    if pressed['haut']:
+                        image_joueur = images_joueur['haut']
 
                 elif event.key == pygame.K_LEFT:
                     if not pressed['gauche'] and pressed['haut']:
                         pressed['gauche'] = True
                         key_to_press = 'bas'
-                    image_joueur = images_joueur['gauche']
+                    if pressed['gauche']:
+                        image_joueur = images_joueur['gauche']
 
                 elif event.key == pygame.K_DOWN:
                     if not pressed['bas'] and pressed['gauche']:
                         pressed['bas'] = True
                         key_to_press = 'droite'
-                    image_joueur = images_joueur['bas']
+                    if pressed['bas']:
+                        image_joueur = images_joueur['bas']
 
                 elif event.key == pygame.K_RIGHT:
                     if not pressed['droite'] and pressed['bas']:
                         pressed['droite'] = True
                         key_to_press = 'espace pour jouer !'
-                    image_joueur = images_joueur['droite']
+                    if pressed['droite']:
+                        image_joueur = images_joueur['droite']
 
         screen.fill((0, 0, 0))
         display_message(screen, font_title, "Initialisation", (152, 152, 100), title_rect)
