@@ -8,7 +8,8 @@ from reseau import BomberlanClient, GroupeMurs, GroupeCaisses, GroupeBombes, Gro
 from joueur import GroupeJoueurs
 from map import Sol, Shadow
 from functions import load_png
-from config import ARENA_HEIGHT, ARENA_WIDTH, PLAYER_LIFE_MAX, ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE, ASSET_MUSIC, SIDE_LENGTH
+from config import ARENA_HEIGHT, ARENA_WIDTH, PLAYER_LIFE_MAX, SIDE_LENGTH
+from config import ASSET_BOMBE, ASSET_LIFE, ASSET_LIFE_GONE, ASSET_MUSIC, ASSET_JOUEUR, ASSET_SOL
 from pgu import gui
 
 SCREEN_COLOR = (0, 0, 0)
@@ -53,18 +54,20 @@ def main_function():
 
     app.run(table)
 
+
 def jeu(ip, port):
-    time_delay = .0
-
     pygame.init()
-
-    screen = pygame.display.set_mode((ARENA_WIDTH * SIDE_LENGTH + PANEL_WIDTH, ARENA_HEIGHT * SIDE_LENGTH), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((ARENA_WIDTH * SIDE_LENGTH + PANEL_WIDTH, ARENA_HEIGHT * SIDE_LENGTH),
+                                     pygame.RESIZABLE)
     pygame.display.set_caption("BomberLAN @ " + ip)
+
+    init_game(screen)
+    time_delay = .0
     enCours = True
     clock = pygame.time.Clock()
 
-    font = pygame.font.Font("assets/pixelmix.ttf", 20)
-    font_bold = pygame.font.Font("assets/pixelmix_bold.ttf", 25)
+    font = pygame.font.Font("assets/font/pixelmix.ttf", 20)
+    font_bold = pygame.font.Font("assets/font/pixelmix_bold.ttf", 25)
 
     joueurs = GroupeJoueurs()
     client = BomberlanClient(ip, port, joueurs)
@@ -136,7 +139,7 @@ def jeu(ip, port):
                 time_delay = .1
 
         elif client.game_over:
-            if music_played != ASSET_MUSIC['perdu'] :
+            if music_played != ASSET_MUSIC['perdu']:
                 pygame.mixer.music.stop()
                 music_played = ASSET_MUSIC['perdu']
                 pygame.mixer.music.load(music_played)
@@ -146,7 +149,7 @@ def jeu(ip, port):
             time_delay = .05
 
         elif client.game_won:
-            if music_played != ASSET_MUSIC['gagne'] :
+            if music_played != ASSET_MUSIC['gagne']:
                 pygame.mixer.music.stop()
                 music_played = ASSET_MUSIC['gagne']
                 pygame.mixer.music.load(music_played)
@@ -164,12 +167,14 @@ def jeu(ip, port):
     pygame.mixer.music.stop()
 
 
-def display_message(screen, font, message, color):
-    disp_message = font.render(message, True, color)
+def display_message(screen, font, message, color, rect=0):
+    if rect == 0:
+        rect = screen.get_rect()
 
+    disp_message = font.render(message, True, color)
     disp_message_rect = disp_message.get_rect()
-    disp_message_rect.topleft = ((screen.get_rect().width - disp_message_rect.width) / 2,
-                                 (screen.get_rect().height - disp_message_rect.height) / 2)
+    disp_message_rect.topleft = ((rect.width - disp_message_rect.width) / 2,
+                                 (rect.height - disp_message_rect.height) / 2)
 
     screen.blit(disp_message, disp_message_rect)
 
@@ -187,7 +192,7 @@ def show_stat_panel(screen, joueurs, bombes):
     for j in joueurs:
         bombe_joueur[j.numero] = 0
     for bombe in bombes:
-        if (bombe.joueur_id in bombe_joueur.keys()): 
+        if (bombe.joueur_id in bombe_joueur.keys()):
             bombe_joueur[bombe.joueur_id] += 1
 
     # Bombe definitions
@@ -236,3 +241,104 @@ def show_stat_panel(screen, joueurs, bombes):
             bombe_rect.centerx += img_width
 
         h_center += (card_height / 2)
+
+
+def init_game(screen):
+    """ Initialization game dialog """
+    screen.fill((0, 0, 0))
+
+    font_title = pygame.font.Font("assets/font/pacifico.ttf", 45)
+    font_normal = pygame.font.Font("assets/font/aller_regular.ttf", 25)
+
+    images_joueur = {
+        'bas': load_png(ASSET_JOUEUR['BAS'])[0],
+        'haut': load_png(ASSET_JOUEUR['HAUT'])[0],
+        'droite': load_png(ASSET_JOUEUR['DROITE'])[0],
+    }
+    images_joueur['gauche'] = pygame.transform.flip(images_joueur['droite'], True, False)
+    image_fond, image_fond_rect = None, None
+    image_shadow, image_shadow_rect = None, None
+    image_joueur, image_joueur_rect = None, (screen.get_rect().centerx - 16, screen.get_rect().centery - 16)
+
+    title_rect = screen.get_rect()
+    title_rect.height /= 2
+    display_message(screen, font_title, "Initialisation", (152, 152, 100), title_rect)
+
+    message_rect = screen.get_rect()
+    message_rect.height *= 1.5
+    display_message(screen, font_normal, "Appuyez sur espace", (172, 172, 100), message_rect)
+
+    pygame.display.flip()
+
+    key_to_press = 'espace'
+    pressed = {
+        'espace': False,
+        'haut': False,
+        'droite': False,
+        'bas': False,
+        'gauche': False
+    }
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit(0)
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    if not pressed['espace']:
+                        image_fond, image_fond_rect = load_png(ASSET_SOL)
+                        image_fond_rect.center = screen.get_rect().center
+                        image_shadow, image_shadow_rect = load_png(ASSET_JOUEUR['SHADOW'])
+                        image_shadow_rect.center = screen.get_rect().center
+                        pressed['espace'] = True
+                        key_to_press = 'haut'
+
+                    all_pressed = True
+                    for value in pressed.values():
+                        all_pressed = (all_pressed and value)
+
+                    print all_pressed
+
+                    if all_pressed:
+                        screen.fill((0, 0, 0))
+                        display_message(screen, font_title, "C'est parti  !  (on va gagner)", (152, 152, 100))
+                        pygame.display.flip()
+                        time.sleep(1.75)
+                        return
+
+                elif event.key == pygame.K_UP:
+                    if not pressed['haut'] and pressed['espace']:
+                        pressed['haut'] = True
+                        key_to_press = 'gauche'
+                    image_joueur = images_joueur['haut']
+
+                elif event.key == pygame.K_LEFT:
+                    if not pressed['gauche'] and pressed['haut']:
+                        pressed['gauche'] = True
+                        key_to_press = 'bas'
+                    image_joueur = images_joueur['gauche']
+
+                elif event.key == pygame.K_DOWN:
+                    if not pressed['bas'] and pressed['gauche']:
+                        pressed['bas'] = True
+                        key_to_press = 'droite'
+                    image_joueur = images_joueur['bas']
+
+                elif event.key == pygame.K_RIGHT:
+                    if not pressed['droite'] and pressed['bas']:
+                        pressed['droite'] = True
+                        key_to_press = 'espace pour jouer !'
+                    image_joueur = images_joueur['droite']
+
+        screen.fill((0, 0, 0))
+        display_message(screen, font_title, "Initialisation", (152, 152, 100), title_rect)
+        display_message(screen, font_normal, "Appuyez sur " + key_to_press, (172, 172, 100), message_rect)
+
+        if pressed['espace']:
+            screen.blit(image_fond, image_fond_rect)
+            screen.blit(image_shadow, image_shadow_rect)
+
+            if pressed['haut']:
+                screen.blit(image_joueur, image_joueur_rect)
+
+        pygame.display.flip()
