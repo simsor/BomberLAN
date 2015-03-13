@@ -74,3 +74,8 @@ ASSET_MUSIC = {
     'perdu': ASSET + "/track/perdu.ogg",
     'gagne': ASSET + "/track/gagnant.ogg"
 }
+
+ASSET_SOUND = {
+    'bombe': ASSET + "/sound/bombe.ogg",
+    'powerup': ASSET + "/sound/powerup.ogg"
+}

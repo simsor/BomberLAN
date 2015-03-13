@@ -7,6 +7,7 @@ from PodSixNet.Connection import connection, ConnectionListener
 
 from joueur import Joueur
 from map import Caisse, Mur, Bombe, Flamme, PowerUpFlamme, PowerUpSpeed, PowerUpBombe, PowerUpShield, Spawn
+from config import ASSET_SOUND
 
 
 class BomberlanClient(ConnectionListener):
@@ -104,12 +105,14 @@ class GroupeBombes(pygame.sprite.Group, ConnectionListener):
 
     def __init__(self):
         pygame.sprite.Group.__init__(self)
+        self.son_explosion = pygame.mixer.Sound(ASSET_SOUND['bombe'])
 
     def Network_bombe(self, data):
         self.add(Bombe(data['bombe_id'], data['bombe_center'], data['joueur_id']))
 
     def Network_bombe_remove(self, data):
         self.bombeById(data['bombe_id']).kill()
+        self.son_explosion.play()
 
     def bombeById(self, id):
         return [b for b in self if b.id == id][0]
@@ -120,6 +123,7 @@ class GroupePowerUps(pygame.sprite.Group, ConnectionListener):
 
     def __init__(self):
         pygame.sprite.Group.__init__(self)
+        self.son_pickup = pygame.mixer.Sound(ASSET_SOUND['powerup'])
 
     def Network_powerUp(self, data):
         if data["powerUp_type"] == "flamme":
@@ -133,6 +137,7 @@ class GroupePowerUps(pygame.sprite.Group, ConnectionListener):
 
     def Network_powerUp_remove(self, data):
         self.powerUpById(data['powerUp_id']).kill()
+        self.son_pickup.play()
 
     def powerUpById(self, id):
         return [b for b in self if b.id == id][0]
