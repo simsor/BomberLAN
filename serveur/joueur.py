@@ -73,8 +73,8 @@ class Joueur(pygame.sprite.Sprite):
         if self.bombe_number <= 0:
             return
 
-        bomb_centerx = (SIDE_LENGTH * round(self.rect.centerx / SIDE_LENGTH)) + 16
-        bomb_centery = (SIDE_LENGTH * round(self.rect.centery / SIDE_LENGTH)) + 16
+        bomb_centerx = (SIDE_LENGTH * round(self.rect.centerx / SIDE_LENGTH)) + SIDE_LENGTH/2
+        bomb_centery = (SIDE_LENGTH * round(self.rect.centery / SIDE_LENGTH)) + SIDE_LENGTH/2
         for b in groupeBombes:
             if b.rect.center == (bomb_centerx, bomb_centery):
                 return  # Il y a déjà une bombe ici, on annule
