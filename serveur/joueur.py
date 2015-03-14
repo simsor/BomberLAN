@@ -145,12 +145,10 @@ class Joueur(pygame.sprite.Sprite):
         
         if self.bouclier and coll:
             self.bouclierEnDestruction = True
-            print "bouclier en train de fondre"
             return False
 
         if self.bouclierEnDestruction and not coll:
            self.bouclier = False
            self.bouclierEnDestruction = False
-           print "bouclier fondu"
            return False
             
